@@ -18,7 +18,6 @@ class CheckPartsList : View("Check Parts") {
     override val root = ListView<CheckParts>()
 
     init {
-        fire(CheckPartsListRequest)
         with(root){
             cellFormat {
                 textProperty().bind(it.nameProperty)
@@ -28,13 +27,12 @@ class CheckPartsList : View("Check Parts") {
             }
             bindSelected(checkPartsModel)
             onUserSelect(2){
-                workspace.dock<CheckPartsArea>()
+                workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to selectedItem))
+                selectionModel.clearSelection()
             }
-            /*onDoubleClick {
-                with(workspace){
-                    dock<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to selectedItem))
-                }
-            }*/
+            whenDocked {
+                fire(CheckPartsListRequest)
+            }
         }
     }
 }

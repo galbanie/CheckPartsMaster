@@ -1,8 +1,10 @@
 package com.github.galbanie
 
 import com.github.galbanie.models.CheckParts
+import com.github.galbanie.models.Part
 import com.github.galbanie.models.Result
 import com.github.galbanie.models.Source
+import com.github.galbanie.utils.AddType
 import tornadofx.*
 import java.io.File
 import java.util.*
@@ -25,6 +27,14 @@ class SaveSourceDataToFile(val file : File) : FXEvent()
 object CheckPartsListRequest : FXEvent(EventBus.RunOn.BackgroundThread)
 class CheckPartsListFound(val checks : List<CheckParts>) : FXEvent()
 class CheckPartsQuery(val id : UUID) : FXEvent(EventBus.RunOn.BackgroundThread)
+class CheckPartsCreated(val check : CheckParts) : FXEvent()
+
+// Events Parts
+class PartsListFound(val checkId : UUID, val parts: List<Part>) : FXEvent()
+class PartsAdded(val checkId : UUID, val parts: String, val mode : AddType = AddType.add) : FXEvent()
+class PartsRemoved(val checkId : UUID, val parts: List<Part>) : FXEvent()
+class PartUpdated(val checkId : UUID, val oldPart : Part, val newPart : Part) : FXEvent()
+class PartsReinitialized(val checkId : UUID, val parts: List<Part>) : FXEvent()
 
 // Events Results
 class ResultsListFound(val results : List<Result>) : FXEvent()

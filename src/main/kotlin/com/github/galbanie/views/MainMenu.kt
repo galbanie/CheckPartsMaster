@@ -21,7 +21,7 @@ class MainMenu : View() {
                 }
                 item("Configurations"){
                     action{
-
+                        find<Configuration>().openModal()
                     }
                 }
                 separator()
@@ -32,10 +32,19 @@ class MainMenu : View() {
             menu("File") {
                 menu("New"){
                     item("Check Parts", KeyCombination.keyCombination("Shortcut+N")){
-
+                        action {
+                            find<NewCheckParts>().openModal()
+                        }
                     }
-                    item("Source"){
+                    item("Sources"){
+                        action {
+                            find<NewSource> {
+                                onComplete {
 
+                                }
+                                openModal()
+                            }
+                        }
                     }
                 }
                 item("Open", KeyCombination.keyCombination("Shortcut+O"), FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)){
