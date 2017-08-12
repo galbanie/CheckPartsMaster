@@ -41,7 +41,7 @@ class CheckPartsArea : Fragment() {
                         glyphSize = 18
                     }
                     action {
-                        root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
+                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
                     }
                 }
                 button {
@@ -53,7 +53,7 @@ class CheckPartsArea : Fragment() {
                         glyphSize = 18
                     }
                     action {
-                        root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
+                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
                     }
                 }
                 button {
