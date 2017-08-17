@@ -38,7 +38,7 @@ class SourceDataPost : View("Data (POST)") {
                         fieldset {
                             field {
                                 button(text = "Add",graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS)).setOnAction {
-                                    datatableview.items.add(Data(key = "your key", value = "your value"))
+                                    datatableview.items.add(Data().apply { key = "your key"; value = "your value" })
                                 }
                                 button(text = "Delete",graphic = FontAwesomeIconView(FontAwesomeIcon.MINUS)).setOnAction {
                                     datatableview.items.remove(datatableview.selectedItem)

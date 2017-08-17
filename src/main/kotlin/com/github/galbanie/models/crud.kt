@@ -97,8 +97,8 @@ class CrudSource : CrudTable<Source> {
         available = r[Sources.available]
         delimiter = r[Sources.delimiter]
         //data = r[WebSources.data].split("|").map { it.split("=") }.associate({ Pair(it.first(),it.last()) })
-        data = if(r[Sources.data].split("|").first().isNotBlank()) r[Sources.data].split("|").map { Data(key = it.split("=").first(), value = it.split("=").last()) }.observable() else arrayListOf<Data>().observable()
-        query = if(r[Sources.query].split("|").first().isNotBlank()) r[Sources.query].split("|").map { Data(key = it.split("=").first(), value = it.split("=").last()) }.observable() else arrayListOf<Data>().observable()
+        data = if(r[Sources.data].split("|").first().isNotBlank()) r[Sources.data].split("|").map { Data().apply { key = it.split("=").first(); value = it.split("=").last() } }.observable() else arrayListOf<Data>().observable()
+        query = if(r[Sources.query].split("|").first().isNotBlank()) r[Sources.query].split("|").map { Data().apply { key = it.split("=").first(); value = it.split("=").last() } }.observable() else arrayListOf<Data>().observable()
         elementSelector = r[Sources.elementSelector]
         titreSelector = r[Sources.titreSelector]
         urlSelector = r[Sources.urlSelector]

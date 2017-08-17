@@ -1,6 +1,6 @@
 package com.github.galbanie.views
 
-import com.github.galbanie.PartsListFound
+import com.github.galbanie.*
 import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Part
@@ -8,11 +8,14 @@ import com.github.galbanie.models.Source
 import com.github.galbanie.utils.PartListCell
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.geometry.Insets
 import javafx.geometry.Orientation
+import javafx.scene.control.ButtonType
 import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode
 import javafx.scene.control.Tab
+import javafx.scene.input.TransferMode
 import tornadofx.*
 
 /**
@@ -21,17 +24,18 @@ import tornadofx.*
 class CheckPartsArea : Fragment() {
 
     val checkParts : CheckParts by param()
-    val checkPartsModel = CheckPartsModel()
+    val checkPartsModel : CheckPartsModel by inject()
     lateinit var partsListView : ListView<Part>
-
+    lateinit var sourcesListView : ListView<Source>
+    override val savable = SimpleBooleanProperty(false)
     init {
         checkPartsModel.item = checkParts
-        titleProperty.bindBidirectional(checkPartsModel.name)
+        titleProperty.bind(checkPartsModel.name)
     }
-
     override fun onDock() {
         with(workspace){
             hbox {
+                visibleWhen { workspace.dockedComponentProperty.booleanBinding{it != null} }
                 button {
                     addClass("icon-only")
                     graphic = FontAwesomeIconView(FontAwesomeIcon.LIST).apply {
@@ -41,7 +45,7 @@ class CheckPartsArea : Fragment() {
                         glyphSize = 18
                     }
                     action {
-                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
+                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkId to checkPartsModel.item.id)).root)
                     }
                 }
                 button {
@@ -53,7 +57,7 @@ class CheckPartsArea : Fragment() {
                         glyphSize = 18
                     }
                     action {
-                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root)
+                        (workspace.dockedComponent as CheckPartsArea).root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkId to checkPartsModel.item.id)).root)
                     }
                 }
                 button {
@@ -69,6 +73,7 @@ class CheckPartsArea : Fragment() {
                 }
             }
             hbox {
+                visibleWhen { workspace.dockedComponentProperty.booleanBinding{it != null} }
                 button {
                     addClass("icon-only")
                     graphic = FontAwesomeIconView(FontAwesomeIcon.PLAY).apply {
@@ -102,6 +107,7 @@ class CheckPartsArea : Fragment() {
                 }
             }
             hbox {
+                visibleWhen { workspace.dockedComponentProperty.booleanBinding{it != null} }
                 button {
                     //disableProperty().bind(available.not())
                     addClass("icon-only")
@@ -112,7 +118,7 @@ class CheckPartsArea : Fragment() {
                         glyphSize = 18
                     }
                     action {
-                        find<PartsAdd>(params = mapOf(PartsAdd::checkPartsId to checkPartsModel.item.id)).openModal()
+                        find<PartsAdd>(params = mapOf(PartsAdd::checkId to checkPartsModel.item.id)).openModal()
                     }
                 }
                 button {
@@ -123,7 +129,12 @@ class CheckPartsArea : Fragment() {
                         }
                         glyphSize = 18
                     }
-                    action {  }
+                    action {
+                        if(partsListView.selectionModel.isEmpty){
+                            checkPartsModel.item.parts.clear()
+                        }
+                        else checkPartsModel.item.parts.removeAll(partsListView.selectionModel.selectedItems)
+                    }
                 }
                 button {
                     addClass("icon-only")
@@ -133,15 +144,50 @@ class CheckPartsArea : Fragment() {
                         }
                         glyphSize = 18
                     }
-                    action {  }
+                    action {
+                        if(partsListView.selectionModel.isEmpty){
+                            checkPartsModel.item.parts.forEach{
+                                it.check = false
+                            }
+                        }
+                        else {
+                            partsListView.selectionModel.selectedItems.forEach { part ->
+                                checkPartsModel.item.parts.find { it.equals(part) }!!.initialize()
+                            }
+                        }
+                    }
+                }
+            }
+            hbox {
+                visibleWhen { workspace.dockedComponentProperty.booleanBinding{it != null} }
+                button {
+                    //disableProperty().bind(available.not())
+                    addClass("icon-only")
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS).apply {
+                        style {
+                            fill = c("#818181")
+                        }
+                        glyphSize = 18
+                    }
+                    action {
+                        find<ChooseSource>(params = mapOf(ChooseSource::checkId to checkPartsModel.item.id)).openModal()
+                    }
+                }
+                button {
+                    //disableProperty().bind(available.not())
+                    addClass("icon-only")
+                    graphic = FontAwesomeIconView(FontAwesomeIcon.MINUS).apply {
+                        style {
+                            fill = c("#818181")
+                        }
+                        glyphSize = 18
+                    }
+                    action {
+                        checkPartsModel.item.sources.removeAll(sourcesListView.selectionModel.selectedItems)
+                    }
                 }
             }
         }
-    }
-
-    override fun onUndock() {
-        super.onUndock()
-        //println(workspace.tabContainer.tabs)
     }
 
     //override val closeable = checkPartsModel.dirty.not()
@@ -155,19 +201,59 @@ class CheckPartsArea : Fragment() {
                     setCellFactory { PartListCell(checkPartsModel.item.id) }
                     isEditable = true
                     selectionModel.selectionMode = SelectionMode.MULTIPLE
-                    /*subscribe<PartsListFound> {
-                        println(it.checkId)
-                        if (it.checkId.equals(checkPartsModel.item.id)){
-                            items.setAll(it.parts)
-                        }
-                    }*/
                 }
-                listview<Source>(checkPartsModel.sources) {
+                sourcesListView = listview<Source>(checkPartsModel.sources) {
+                    cellCache {
+                        label(it.nameProperty) {
+                            tooltip {
+                                textProperty().bind(it.urlProperty)
+                            }
+                        }
+                    }
+                    selectionModel.selectionMode = SelectionMode.MULTIPLE
+                    /*setOnDragOver {
+                        if (it.dragboard.hasString()){
+                            it.acceptTransferModes(TransferMode.MOVE)
+                        }
+                    }
+                    setOnDragEntered {
+                        println("Entered")
+                    }
+                    setOnDragDone {
 
+                    }
+                    setOnDragDropped {
+                        fire(SourceListRequest)
+                        if (it.dragboard.hasString() && it.dragboard.string.equals("sources")){
+                            subscribe<DropSource> {
+                                println("Drag Dropped")
+                                println(it.sources)
+                                items.addAll(it.sources)
+                            }
+                            it.isDropCompleted = true
+                        }
+                        else it.isDropCompleted = false
+                    }*/
                 }
             }
         }
-        center = find<ResultsList>(params = mapOf(ResultsList::checkPartsId to checkPartsModel.item.id)).root
+        center = find<ResultsList>(params = mapOf(ResultsList::checkId to checkPartsModel.item.id)).root
 
+    }
+    override fun onSave() {
+        checkPartsModel.commit{
+
+        }
+    }
+
+    override fun onRefresh() {
+        fire(CheckPartsListRequest)
+    }
+
+    override fun onDelete() {
+        confirmation("Are you sure?","", ButtonType.YES, ButtonType.NO){
+            fire(CheckPartsRemoved(checkPartsModel.item))
+        }
+        close()
     }
 }

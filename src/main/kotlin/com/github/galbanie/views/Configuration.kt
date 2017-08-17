@@ -8,7 +8,7 @@ import javafx.scene.control.TabPane
  * Created by Galbanie on 2017-07-31.
  */
 class Configuration : View() {
-
+    //override val configPath = app.configBasePath.resolve("cpm.properties")
     val generalConfView : GeneralConf by inject()
     val databaseConfView : DatabaseConf by inject()
 
@@ -17,8 +17,8 @@ class Configuration : View() {
     }
 
     override val root = borderpane {
-        prefHeight = 540.0
-        prefWidth = 540.0
+        //prefHeight = 540.0
+        //prefWidth = 540.0
         center {
             tabpane {
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE

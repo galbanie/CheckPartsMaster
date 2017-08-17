@@ -37,6 +37,8 @@ class Part(part : String, check : Boolean = false) {
     override fun toString(): String {
         return "$part[$check]"
     }
+
+    fun initialize() {check = false}
 }
 
 class PartModel : ItemViewModel<Part>() {

@@ -3,6 +3,7 @@ package com.github.galbanie.views
 import com.github.galbanie.models.SourceModel
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.binding.BooleanExpression
 import javafx.geometry.Orientation
 import javafx.scene.control.TextField
 import tornadofx.*
@@ -16,6 +17,7 @@ class SourceSelectorRequired : View("Selector Required") {
     lateinit var elementselectortextfield : TextField
     lateinit var titreselectortextfield : TextField
     lateinit var urlselectortextfield : TextField
+    override val complete = sourceModel.valid(sourceModel.elementSelector,sourceModel.titreSelector,sourceModel.urlSelector)
     override val root = form {
         fieldset("Selector") {
             labelPosition = Orientation.VERTICAL

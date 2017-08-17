@@ -27,6 +27,7 @@ class SourceSelectorOptional : View("Selector Optional") {
             hbox(20) {
                 field("Descriptions Part (css query) : ") {
                     vbox {
+                        useMaxWidth = true
                         desclistview = listview<String> {
                             setCellFactory {EditStringListCell()}
                             isEditable = true
@@ -61,6 +62,7 @@ class SourceSelectorOptional : View("Selector Optional") {
                 }
                 field("Images Part (css query) : ") {
                     vbox {
+                        useMaxWidth = true
                         imglistview = listview<String> {
                             setCellFactory { EditStringListCell() }
                             isEditable = true

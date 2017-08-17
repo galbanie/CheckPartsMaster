@@ -7,7 +7,7 @@ import org.jsoup.Connection
 /**
  * Created by Galbanie on 2017-08-11.
  */
-object Sources : Table("WebSources") {
+object Sources : Table("Sources") {
     val id = uuid("id").primaryKey()
     val name = varchar("name", 100).uniqueIndex()
     val url = varchar("url", 250)

@@ -9,11 +9,9 @@ import tornadofx.*
 /**
  * Created by Galbanie on 2017-08-10.
  */
-class EditTextArea : View("Edit") {
+class EditTextArea : Fragment("Edit") {
     val node : Node by param()
-
     lateinit var areatext : TextArea
-
     override val root = borderpane {
         center {
             areatext = textarea {

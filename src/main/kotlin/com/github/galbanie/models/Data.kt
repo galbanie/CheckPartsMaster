@@ -6,11 +6,11 @@ import tornadofx.*
 /**
  * Created by Galbanie on 2017-08-01.
  */
-class Data(key : String?, value : String?) {
-    val keyProperty = SimpleStringProperty(key)
+class Data {
+    val keyProperty = SimpleStringProperty()
     var key by keyProperty
 
-    val valueProperty = SimpleStringProperty(value)
+    val valueProperty = SimpleStringProperty()
     var value by valueProperty
 
     override fun toString(): String {

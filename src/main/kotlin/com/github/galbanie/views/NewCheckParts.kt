@@ -10,7 +10,7 @@ import tornadofx.*
 /**
  * Created by Galbanie on 2017-08-10.
  */
-class NewCheckParts : View("New Check Parts") {
+class NewCheckParts : Fragment("New Check Parts") {
     val checkPartsModel = CheckPartsModel()
     init {
         checkPartsModel.item = CheckParts()

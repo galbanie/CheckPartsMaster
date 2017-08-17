@@ -37,7 +37,7 @@ class SourceQueriesGet : View("Queries") {
                         fieldset {
                             field {
                                 button(text = "Add",graphic = FontAwesomeIconView(FontAwesomeIcon.PLUS)).setOnAction {
-                                    querytableview.items.add(Data(key = "your key", value = "your value"))
+                                    querytableview.items.add(Data().apply { key = "your key"; value = "your value" })
                                 }
                                 button(text = "Delete",graphic = FontAwesomeIconView(FontAwesomeIcon.MINUS)).setOnAction {
                                     querytableview.items.remove(querytableview.selectedItem)

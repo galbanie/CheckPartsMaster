@@ -7,20 +7,42 @@ import javafx.stage.Stage
 import tornadofx.*
 
 class CheckPartsMasterApp : App(CheckPartsMasterWorkspace::class, Styles::class, CheckPartsMasterScope()){
+    val controller : CheckPartsMasterController by inject(scope)
     init {
         reloadStylesheetsOnFocus()
+        controller
+    }
+    override fun start(stage: Stage) {
+        super.start(stage)
+        FX.primaryStage.icons += resources.image("/com/github/galbanie/checkmark_on_circle.png")
+    }
+    override fun createPrimaryScene(view: UIComponent) = Scene(view.root, 1024.0, 768.0)
+    override fun onBeforeShow(view: UIComponent) {
+        fire(InitDataSource)
+        configuration()
         try {
-            tornadofx.find<CheckPartsMasterController>(scope)
+            controller.connectDatabase()
+            controller.createTables()
         }
         catch (e : org.h2.jdbc.JdbcSQLException){
 
         }
     }
-    override fun start(stage: Stage) {
-        super.start(stage)
-        tornadofx.FX.Companion.primaryStage.icons += resources.image("/com/github/galbanie/checkmark_on_circle.png")
+    private fun configuration(){
+        // Database
+        if (config.containsKey("database.url").not() or config.string("database.url", "").isNullOrBlank() or config.string("database.url", "").isNullOrEmpty()){
+            with(config){
+                set("database.url", "jdbc:h2:file:./db/cpm;DB_CLOSE_DELAY=-1;IFEXISTS=TRUE")
+                set("database.type", "file")
+                set("database.user","")
+                set("database.password","")
+                set("database.driver","org.h2.Driver")
+                set("database.path","./db/cpm")
+                set("database.options","DB_CLOSE_DELAY=-1;IFEXISTS=TRUE")
+                save()
+            }
+        }
     }
-    override fun createPrimaryScene(view: UIComponent) = Scene(view.root, 1024.0, 768.0)
 }
 
 /**

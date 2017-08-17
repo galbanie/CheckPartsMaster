@@ -4,6 +4,7 @@ import com.github.galbanie.models.SourceModel
 import com.github.galbanie.utils.PartDelimiter
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.beans.binding.BooleanExpression
 import javafx.scene.control.TextField
 import org.jsoup.Connection
 import tornadofx.*
@@ -14,6 +15,7 @@ import tornadofx.*
 class SourceInformation : View("Source Information") {
     val sourceModel : SourceModel by inject()
     lateinit var urltextfield : TextField
+    override val complete = sourceModel.valid(sourceModel.name,sourceModel.url)
     override val root = form{
         fieldset("Source Info") {
             labelPosition = javafx.geometry.Orientation.VERTICAL

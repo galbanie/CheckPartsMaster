@@ -6,10 +6,12 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import tornadofx.*
 import java.util.*
+import javax.xml.bind.annotation.XmlRootElement
 
 /**
  * Created by Galbanie on 2017-07-31.
  */
+@XmlRootElement(name = "CheckParts")
 class CheckParts {
 
     val idProperty = SimpleObjectProperty<UUID>(UUID.randomUUID())

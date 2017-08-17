@@ -8,12 +8,13 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import org.jsoup.Connection
 import tornadofx.*
+import java.io.Serializable
 import java.util.*
 
 /**
  * Created by Galbanie on 2017-07-31.
  */
-class Source{
+class Source : Serializable{
     val idProperty = SimpleObjectProperty<UUID>(UUID.randomUUID())
     var id by idProperty
 
@@ -66,7 +67,11 @@ class Source{
     var delimiter by delimiterProperty
 
     override fun equals(other: Any?): Boolean {
-        return super.equals(other)
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+        other as Source
+        if (id != other.id) return false
+        return true
     }
 
     override fun hashCode(): Int {
@@ -79,21 +84,21 @@ class Source{
 }
 
 class SourceModel : ItemViewModel<Source>() {
-    val id = bind(Source::idProperty)
-    val name = bind(Source::nameProperty)
-    val url = bind(Source::urlProperty)
-    val available = bind(Source::availableProperty)
-    val method = bind(Source::methodProperty)
-    val data = bind(Source::dataProperty)
-    val query = bind(Source::queryProperty)
-    val elementSelector = bind(Source::elementSelectorProperty)
-    val titreSelector = bind(Source::titreSelectorProperty)
-    val urlSelector = bind(Source::urlSelectorProperty)
-    val descriptionSelectors = bind(Source::descriptionSelectorsProperty)
-    val imageSelectors = bind(Source::imageSelectorsProperty)
-    val pagination = bind(Source::paginationProperty)
-    val linkPaginationSelector = bind(Source::linkPaginationSelectorProperty)
-    val urlPagination = bind(Source::urlPaginationProperty)
-    val numberElementPagination = bind(Source::numberElementPaginationProperty)
-    val delimiter = bind(Source::delimiterProperty)
+    val id = bind(Source::idProperty,autocommit = true)
+    val name = bind(Source::nameProperty,autocommit = true)
+    val url = bind(Source::urlProperty,autocommit = true)
+    val available = bind(Source::availableProperty,autocommit = true)
+    val method = bind(Source::methodProperty,autocommit = true)
+    val data = bind(Source::dataProperty,autocommit = true)
+    val query = bind(Source::queryProperty,autocommit = true)
+    val elementSelector = bind(Source::elementSelectorProperty,autocommit = true)
+    val titreSelector = bind(Source::titreSelectorProperty,autocommit = true)
+    val urlSelector = bind(Source::urlSelectorProperty,autocommit = true)
+    val descriptionSelectors = bind(Source::descriptionSelectorsProperty,autocommit = true)
+    val imageSelectors = bind(Source::imageSelectorsProperty,autocommit = true)
+    val pagination = bind(Source::paginationProperty,autocommit = true)
+    val linkPaginationSelector = bind(Source::linkPaginationSelectorProperty,autocommit = true)
+    val urlPagination = bind(Source::urlPaginationProperty,autocommit = true)
+    val numberElementPagination = bind(Source::numberElementPaginationProperty,autocommit = true)
+    val delimiter = bind(Source::delimiterProperty,autocommit = true)
 }

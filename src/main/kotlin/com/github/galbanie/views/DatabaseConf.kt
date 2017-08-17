@@ -1,12 +1,14 @@
 package com.github.galbanie.views
 
+import com.github.galbanie.models.Data
+import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
 /**
  * Created by Galbanie on 2017-08-08.
  */
 class DatabaseConf : View("DataBase") {
-    override val configPath = app.configBasePath.resolve("cpm.properties")
+    override val configPath = app.configBasePath.resolve("app.properties")
     override val root = borderpane {
         center{
             form{
@@ -14,7 +16,7 @@ class DatabaseConf : View("DataBase") {
                     field("Driver") {
                         combobox<String>{
                             selectionModel.select(config.string("database.driver"))
-                            items.setAll("H2")
+                            items.setAll("org.h2.Driver")
                             selectionModel.selectedItemProperty().onChange {
                                 with(config){
                                     set("database.driver", selectedItem)
@@ -68,6 +70,7 @@ class DatabaseConf : View("DataBase") {
                         }
                         combobox<String>{
                             selectionModel.select(config.string("database.type"))
+                            items.setAll("file")
                             selectionModel.selectedItemProperty().onChange {
                                 with(config){
                                     set("database.type", selectedItem)
@@ -77,8 +80,18 @@ class DatabaseConf : View("DataBase") {
                         }
                     }
                     field("Option") {
-                        listview<String> {
-                            prefHeight = 140.0
+                        tableview<Data> {
+                            items.setAll(config.string("database.options").split(";").map { Data().apply { key = it.split("=").first(); value = it.split("=").last() } })
+                            isEditable = true
+                            column("Key",Data::key){
+                                useTextField(DefaultStringConverter())
+                                weigthedWidth(1.0)
+                            }
+                            column("Value",Data::value){
+                                useTextField(DefaultStringConverter())
+                                weigthedWidth(1.0)
+                            }
+                            columnResizePolicy = SmartResize.POLICY
                         }
                     }
                 }

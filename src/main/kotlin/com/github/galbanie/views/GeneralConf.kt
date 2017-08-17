@@ -8,7 +8,7 @@ import tornadofx.*
  * Created by Galbanie on 2017-08-08.
  */
 class GeneralConf : View("General") {
-    override val configPath = app.configBasePath.resolve("cpm.properties")
+    override val configPath = app.configBasePath.resolve("app.properties")
     override val root = borderpane {
         center{
             form{

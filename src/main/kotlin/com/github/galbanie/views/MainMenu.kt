@@ -1,17 +1,21 @@
 package com.github.galbanie.views
 
+import com.github.galbanie.ChooseFileActionEvent
+import com.github.galbanie.SourceCreated
+import com.github.galbanie.utils.ActionFile
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import tornadofx.*
 import javafx.scene.control.MenuBar
 import javafx.scene.input.KeyCombination
+import javafx.stage.FileChooser
 
 /**
  * Created by Galbanie on 2017-07-31.
  */
 class MainMenu : View() {
+    val status: TaskStatus by inject()
     override val root = MenuBar()
-
     init {
         with(root){
             menu("Check Parts Master") {
@@ -40,7 +44,11 @@ class MainMenu : View() {
                         action {
                             find<NewSource> {
                                 onComplete {
-
+                                    runAsync {
+                                        fire(SourceCreated(sourceModel.item))
+                                    } ui {
+                                        workspace.dockInNewScope<SourceArea>(params = mapOf(SourceArea::source to sourceModel.item))
+                                    }
                                 }
                                 openModal()
                             }
@@ -48,33 +56,33 @@ class MainMenu : View() {
                     }
                 }
                 item("Open", KeyCombination.keyCombination("Shortcut+O"), FontAwesomeIconView(FontAwesomeIcon.FOLDER_OPEN_ALT)){
+                    disableWhen(status.running)
                     action {
-
+                        fire(ChooseFileActionEvent("Open Results", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Single, ActionFile.openXmlToCheck))
                     }
                 }
                 separator()
                 item("Save", KeyCombination.keyCombination("Shortcut+S"), FontAwesomeIconView(FontAwesomeIcon.FLOPPY_ALT)){
+                    disableWhen(status.running)
                     action {
-
+                        fire(ChooseFileActionEvent("Save Check Parts", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Save, ActionFile.saveCheckToXml))
                     }
                 }
-                menu("Save As") {
+                menu("Save Result As") {
+                    disableWhen(status.running)
                     item("CSV", KeyCombination.keyCombination("Shortcut+Alt+C")).action {
-
+                        fire(ChooseFileActionEvent("Export Result to CSV", arrayOf(FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt"), FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv")), FileChooserMode.Save, ActionFile.saveResultToCsv))
                     }
                     item("XML", KeyCombination.keyCombination("Shortcut+Alt+X")).action {
-
+                        fire(ChooseFileActionEvent("Export Result to XML", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Save, ActionFile.saveResultToXml))
                     }
                 }
                 separator()
-                item("Manage Sources", KeyCombination.keyCombination("Shortcut+M")).action {
-
-                }
                 item("Import Sources", KeyCombination.keyCombination("Shortcut+I")).action {
-
+                    fire(ChooseFileActionEvent("Load Web Sources", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Single, ActionFile.loadSources))
                 }
                 item("Export Sources", KeyCombination.keyCombination("Shortcut+E")).action {
-
+                    find<ChooseSource>(params = mapOf(ChooseSource::checkId to null)).openModal()
                 }
             }
             menu("Edit") {
@@ -87,17 +95,20 @@ class MainMenu : View() {
             }
             menu("Run") {
                 item("Run", KeyCombination.keyCombination("Alt+R"), FontAwesomeIconView(FontAwesomeIcon.PLAY)){
+                    disableWhen(status.running)
                     action {
 
                     }
                 }
                 item("Stop", KeyCombination.keyCombination("Alt+S"), FontAwesomeIconView(FontAwesomeIcon.STOP)){
+                    enableWhen(status.running)
                     action {
 
                     }
                 }
                 separator()
                 item("Clear", KeyCombination.keyCombination("Alt+C"), FontAwesomeIconView(FontAwesomeIcon.ERASER)){
+                    disableWhen(status.running)
                     action {
 
                     }
@@ -106,10 +117,10 @@ class MainMenu : View() {
             }
             menu("Help") {
                 item("Keymap Reference").action {
-
+                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/KeymapReference.html").toString())).openModal()
                 }
                 item("Selector Reference").action {
-
+                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/SelectorReference.html").toString())).openModal()
                 }
                 item("Demo and Screencasts").action {
 

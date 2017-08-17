@@ -39,7 +39,7 @@ class Control : View() {
                 var cpa = workspace?.dockedComponent
                 if(cpa != null) {
                     cpa as CheckPartsArea
-                    find<PartsAdd>(params = mapOf(PartsAdd::checkPartsId to cpa.checkPartsModel.item.id)).openModal()
+                    find<PartsAdd>(params = mapOf(PartsAdd::checkId to cpa.checkPartsModel.item.id)).openModal()
                 }
             }
         }
@@ -111,7 +111,7 @@ class Control : View() {
             }
             action {
                 var cpa = workspace?.dockedComponent as CheckPartsArea
-                if(cpa != null) cpa.root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkPartsId to cpa.checkPartsModel.item.id)).root)
+                if(cpa != null) cpa.root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::checkId to cpa.checkPartsModel.item.id)).root)
             }
         }
         button {
@@ -125,7 +125,7 @@ class Control : View() {
             }
             action {
                 var cpa = workspace?.dockedComponent as CheckPartsArea
-                if(cpa != null) cpa.root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkPartsId to cpa.checkPartsModel.item.id)).root)
+                if(cpa != null) cpa.root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::checkId to cpa.checkPartsModel.item.id)).root)
             }
         }
         button {
