@@ -211,7 +211,7 @@ class CheckPartsArea : Fragment() {
                         }
                     }
                     selectionModel.selectionMode = SelectionMode.MULTIPLE
-                    /*setOnDragOver {
+                    setOnDragOver {
                         if (it.dragboard.hasString()){
                             it.acceptTransferModes(TransferMode.MOVE)
                         }
@@ -233,7 +233,7 @@ class CheckPartsArea : Fragment() {
                             it.isDropCompleted = true
                         }
                         else it.isDropCompleted = false
-                    }*/
+                    }
                 }
             }
         }
@@ -251,7 +251,7 @@ class CheckPartsArea : Fragment() {
     }
 
     override fun onDelete() {
-        confirmation("Are you sure?","", ButtonType.YES, ButtonType.NO){
+        confirmation("Do you really want to delete?","", ButtonType.YES, ButtonType.NO){
             fire(CheckPartsRemoved(checkPartsModel.item))
         }
         close()

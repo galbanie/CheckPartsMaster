@@ -45,7 +45,7 @@ class SourcesList : View("Source") {
             whenDocked {
                 fire(SourceListRequest)
             }
-            /*setOnDragDetected {
+            setOnDragDetected {
                 println("Drag")
                 var cpa = workspace.dockedComponent
                 if(cpa != null && !selectionModel.selectedItems.isEmpty()){
@@ -59,7 +59,7 @@ class SourcesList : View("Source") {
                     fire(DragSource(selectionModel.selectedItems))
                     it.consume()
                 }
-            }*/
+            }
         }
     }
 }
