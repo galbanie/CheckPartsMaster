@@ -34,25 +34,27 @@ object CheckPartsListRequest : FXEvent(EventBus.RunOn.BackgroundThread)
 class CheckPartsListFound(val checks : List<CheckParts>) : FXEvent()
 class CheckPartsQuery(val id : UUID) : FXEvent(EventBus.RunOn.BackgroundThread)
 class CheckPartsCreated(val check : CheckParts) : FXEvent()
+class CheckPartsUpdated(val check : CheckParts) : FXEvent()
 class CheckPartsRemoved(val check : CheckParts) : FXEvent()
 class SaveCheckDataToXMLFile(val file : File) : FXEvent()
 class LoadCheckDataFromXML(val file : File) : FXEvent()
 
 // Events Parts
-class PartsListFound(val checkId : UUID, val parts: List<Part>) : FXEvent()
+//class PartsListFound(val checkId : UUID, val parts: List<Part>) : FXEvent()
 class PartsAdded(val checkId : UUID, val parts: String, val mode : AddType = AddType.add) : FXEvent()
-class PartsRemoved(val checkId : UUID, val parts: List<Part>) : FXEvent()
-class PartUpdated(val checkId : UUID, val oldPart : Part, val newPart : Part) : FXEvent()
-class PartsReinitialized(val checkId : UUID, val parts: List<Part>) : FXEvent()
+//class PartsRemoved(val checkId : UUID, val parts: List<Part>) : FXEvent()
+//class PartUpdated(val checkId : UUID, val oldPart : Part, val newPart : Part) : FXEvent()
+//class PartsReinitialized(val checkId : UUID, val parts: List<Part>) : FXEvent()
 
 // Events Results
 class ResultsListFound(val results : List<Result>) : FXEvent()
 class CopyResultsToClipboard(val checkId : UUID, val results : List<Result> = arrayListOf()) : FXEvent()
 class SaveResultDataToCSVFile(val file : File) : FXEvent()
 class SaveResultDataToXMLFile(val file : File) : FXEvent()
+class ResultAdded(val checkId : UUID, val result : Result) : FXEvent()
 
 // Others Events
-object Run : FXEvent(EventBus.RunOn.BackgroundThread)
+class Run(scope : Scope) : FXEvent(EventBus.RunOn.BackgroundThread, scope)
 object Stop : FXEvent(EventBus.RunOn.BackgroundThread)
 object Clear : FXEvent(EventBus.RunOn.BackgroundThread)
 object InitDataSource : FXEvent(EventBus.RunOn.BackgroundThread)

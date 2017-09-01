@@ -2,6 +2,7 @@ package com.github.galbanie.views
 
 import com.github.galbanie.ChooseFileActionEvent
 import com.github.galbanie.SourceCreated
+import com.github.galbanie.utils.Action
 import com.github.galbanie.utils.ActionFile
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -37,7 +38,7 @@ class MainMenu : View() {
                 menu("New"){
                     item("Check Parts", KeyCombination.keyCombination("Shortcut+N")){
                         action {
-                            find<NewCheckParts>().openModal()
+                            find<CheckPartsEditor>(params = mapOf(CheckPartsEditor::action to Action.CREATE)).openModal()
                         }
                     }
                     item("Sources"){
@@ -93,7 +94,7 @@ class MainMenu : View() {
 
                 }
             }
-            menu("Run") {
+            /*menu("Run") {
                 item("Run", KeyCombination.keyCombination("Alt+R"), FontAwesomeIconView(FontAwesomeIcon.PLAY)){
                     disableWhen(status.running)
                     action {
@@ -114,13 +115,13 @@ class MainMenu : View() {
                     }
                 }
 
-            }
+            }*/
             menu("Help") {
                 item("Keymap Reference").action {
-                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/KeymapReference.html").toString())).openModal()
+                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/KeymapReference.html").toString(), Browser::_title to "Keymap Reference")).openModal()
                 }
                 item("Selector Reference").action {
-                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/SelectorReference.html").toString())).openModal()
+                    find<Browser>(params = mapOf(Browser::url to resources.url("/com/github/galbanie/public/SelectorReference.html").toString(), Browser::_title to "Selector Reference")).openModal()
                 }
                 item("Demo and Screencasts").action {
 

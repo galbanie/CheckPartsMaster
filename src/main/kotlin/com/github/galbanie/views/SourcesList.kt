@@ -6,7 +6,9 @@ import com.github.galbanie.SourceListFound
 import com.github.galbanie.SourceListRequest
 import com.github.galbanie.models.Source
 import com.github.galbanie.models.SourceModel
+import com.github.galbanie.utils.Action
 import javafx.beans.property.SimpleListProperty
+import javafx.scene.control.ContextMenu
 import tornadofx.*
 import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode
@@ -45,7 +47,12 @@ class SourcesList : View("Source") {
             whenDocked {
                 fire(SourceListRequest)
             }
-            setOnDragDetected {
+            /*focusedProperty().onChange {
+                if(!it){
+                    selectionModel.clearSelection()
+                }
+            }*/
+            /*setOnDragDetected {
                 println("Drag")
                 var cpa = workspace.dockedComponent
                 if(cpa != null && !selectionModel.selectedItems.isEmpty()){
@@ -59,7 +66,7 @@ class SourcesList : View("Source") {
                     fire(DragSource(selectionModel.selectedItems))
                     it.consume()
                 }
-            }
+            }*/
         }
     }
 }

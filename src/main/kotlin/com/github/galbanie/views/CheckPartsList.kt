@@ -2,9 +2,12 @@ package com.github.galbanie.views
 
 import com.github.galbanie.CheckPartsListFound
 import com.github.galbanie.CheckPartsListRequest
+import com.github.galbanie.CheckPartsRemoved
 import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Result
+import com.github.galbanie.utils.Action
+import javafx.scene.control.ContextMenu
 import tornadofx.*
 import javafx.scene.control.ListView
 
@@ -33,6 +36,27 @@ class CheckPartsList : View("Check Parts") {
             whenDocked {
                 fire(CheckPartsListRequest)
             }
+            setOnContextMenuRequested {
+                contextMenu = ContextMenu().apply {
+                    if(selectedItem != null){
+                        item("Rename"){
+                            action {
+                                find<CheckPartsEditor>(params = mapOf(CheckPartsEditor::action to Action.EDIT, CheckPartsEditor::check to selectedItem)).openModal()
+                            }
+                        }
+                        item("Delete"){
+                            action {
+                                fire(CheckPartsRemoved(selectedItem!!))
+                            }
+                        }
+                    }
+                }
+            }
+            /*focusedProperty().onChange {
+                if(!it){
+                    selectionModel.clearSelection()
+                }
+            }*/
         }
     }
 }

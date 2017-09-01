@@ -5,6 +5,7 @@ import com.github.galbanie.models.*
 import com.github.galbanie.utils.ActionFile
 import com.github.galbanie.utils.AddType
 import com.github.galbanie.utils.NotificationType
+import com.github.galbanie.utils.PartDelimiter
 import com.github.galbanie.views.CheckPartsArea
 import com.opencsv.CSVWriter
 import org.controlsfx.control.Notifications
@@ -14,6 +15,7 @@ import org.h2.jdbcx.JdbcDataSource
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Database.Companion.connect
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jsoup.Jsoup
 import tornadofx.*
 import java.nio.file.Paths
 import javax.xml.bind.JAXBContext
@@ -28,8 +30,6 @@ class CheckPartsMasterController : Controller() {
     val crudSource = CrudSource()
     lateinit var database : Database
     init {
-        //database = connect(dataSource)
-        // Create Table If Exist
         // Subscribe Others Events
         subscribe<InitDataSource> {
             dataSource.setURL(config.string("database.url"))
@@ -61,12 +61,43 @@ class CheckPartsMasterController : Controller() {
                 }
             }
         }
+        subscribe<Run> {
+            runLater {
+                val cpa = workspace.dockedComponent
+                if(cpa != null){
+                    if(cpa is CheckPartsArea){
+                        cpa.checkPartsModel.item.lockProperty.value = false
+                        this@CheckPartsMasterController.run(cpa.checkPartsModel.item, cpa.status)
+                    }
+                }
+            }
+        }
+        subscribe<Clear> {
+            runLater {
+                val cpa = workspace.dockedComponent
+                if(cpa != null){
+                    if(cpa is CheckPartsArea){
+                        cpa.checkPartsModel.item.results.clear()
+                        cpa.checkPartsModel.item.parts.clear()
+                        cpa.checkPartsModel.item.sources.clear()
+                    }
+                }
+            }
+        }
+        subscribe<Stop> {
+            val cpa = workspace.dockedComponent
+            if(cpa != null){
+                if(cpa is CheckPartsArea){
+                    cpa.checkPartsModel.item.lockProperty.value = true
+                }
+            }
+        }
         // Subscribe Check Parts
         subscribe<CheckPartsListRequest> {
             fire(CheckPartsListFound(scope.checks))
         }
         subscribe<CheckPartsQuery> { event ->
-            var check = scope.checks.filter { it.id.equals(event.id) }.firstOrNull()
+            val check = scope.checks.filter { it.id.equals(event.id) }.firstOrNull()
             if (check != null) {
                 fire(ResultsListFound(check.results))
             }
@@ -184,12 +215,21 @@ class CheckPartsMasterController : Controller() {
         subscribe<PartsAdded> { event ->
             scope.checks.find { it.id.equals(event.checkId) }!!.apply {
                 when(event.mode){
-                    AddType.add -> parts.addAll(event.parts.split("\n").map { Part(it) })
-                    AddType.clearAndAdd -> parts.setAll(event.parts.split("\n").map { Part(it) })
+                    AddType.add -> {
+                        event.parts.split("\n").map { Part(it) }.distinct().forEach{
+                            if(!parts.contains(it)) parts.add(it)
+                        }
+                    }
+                    AddType.clearAndAdd -> parts.setAll(event.parts.split("\n").map { Part(it) }.distinct())
                 }
             }
         }
         // Subscribe Results
+        subscribe<ResultAdded> { event ->
+            scope.checks.find { it.id.equals(event.checkId) }!!.apply {
+                results.add(event.result)
+            }
+        }
         subscribe<SaveResultDataToCSVFile> { event ->
             var cpa = workspace.dockedComponent
             if(cpa != null && cpa is CheckPartsArea){
@@ -228,5 +268,124 @@ class CheckPartsMasterController : Controller() {
         transaction {
             crudSource.createTable()
         }
+    }
+
+    private fun run(check : CheckParts, status: TaskStatus){
+        runAsync(status){
+            fire(NotificationEvent("Run", "Running process in progress", NotificationType.INFORMATION))
+            updateTitle("Running process in progress")
+            println("Running process in progress")
+            check.parts.filter { it.check.not() }.forEach { part ->
+                if (check.lockProperty.value){
+                    fire(NotificationEvent("Stop", "Process Stopping", NotificationType.INFORMATION))
+                    println("Process Stopping")
+                    return@runAsync
+                }
+                check.sources.forEach { source ->
+                    updateMessage("Current part : ${part.part} - ${source.name}")
+                    println("Current part : ${part.part} - ${source.name}")
+                    var hasNext = false
+                    var url = source.url.replace("%part%",delimiter(part.part,source.delimiter),true)
+                    var urlFinal  = url
+                    var data = source.data.associate({ Pair(it.key,it.value.replace("%part%",delimiter(part.part,source.delimiter),true)) })
+                    println("data = $data")
+                    var start = 0
+                    do {
+                        try {
+                            var connection = Jsoup.connect(urlFinal)
+                            if (config.boolean("proxy.active")) connection.proxy(config.string("proxy.address","127.0.0.1"), config.string("proxy.port", "8080")!!.toInt())
+                            connection.ignoreHttpErrors(true)
+                            connection.followRedirects(true)
+                            connection.timeout(config.string("timeout", "7000").toInt())
+                            connection.ignoreContentType(true)
+                            connection.method(source.method)
+                            connection.data(data)
+                            var response = connection.execute()
+                            when(response.statusCode()){
+                                200 -> {
+                                    var host = "${response.url().protocol}://${response.url().host}"
+                                    var doc = response.parse()
+                                    var result : Result
+                                    var elements = doc.select(source.elementSelector)
+                                    elements.forEach { element ->
+                                        result = Result().apply {
+                                            this.part = part.part
+                                            this.titre = element.select(source.titreSelector).text()
+                                            this.url = if (source.urlSelector.equals("%url%")) url else{
+                                                var href = element.select(source.urlSelector).attr("href")
+                                                if (href.startsWith(host))href
+                                                else host+href
+                                            }
+                                            this.source = source
+                                        }
+                                        source.descriptionSelectors.forEach {
+                                            if(it.isNotEmpty() and !element.select(it).isEmpty()) result.descriptions.addAll(element.select(it).map { it.text() })
+                                        }
+                                        source.imageSelectors.forEach {
+                                            if(it.isNotEmpty() and !element.select(it).isEmpty()) result.imagesUrl.addAll(element.select(it).map { it.attr("src") })
+                                        }
+                                        //check.results.add(result)
+                                        if(!part.sources.contains(source))part.sources.add(source)
+                                        fire(ResultAdded(check.id, result))
+                                    }
+                                    if(source.pagination and (elements.count() > 0)){
+                                        hasNext = true
+                                        if((source.urlPagination.isNotEmpty() and source.urlPagination.isNotBlank())){
+                                            start += source.numberElementPagination
+                                            urlFinal = url + source.urlPagination.replace("%start%", (start).toString(), true)
+                                        }
+                                        else if(source.linkPaginationSelector.isNotEmpty() and source.linkPaginationSelector.isNotBlank()){
+                                            urlFinal = doc.select(source.linkPaginationSelector).attr("href")
+                                        }
+                                        else {
+                                            hasNext = false
+                                        }
+                                    }
+                                    else hasNext = false
+                                }
+                                in 201..206 -> {
+                                    fire(NotificationEvent("Code ${response.statusCode()}", response.statusMessage(), NotificationType.INFORMATION))
+                                    println("Code ${response.statusCode()} : ${response.statusMessage()}")
+                                }
+                                in 400..451 -> {
+                                    fire(NotificationEvent("Code ${response.statusCode()}", response.statusMessage(), NotificationType.WARNING))
+                                    println("Code ${response.statusCode()} : ${response.statusMessage()}")
+                                }
+                                in 500..511 -> {
+                                    fire(NotificationEvent("Code ${response.statusCode()}", response.statusMessage(), NotificationType.ERROR))
+                                    println("Code ${response.statusCode()} : ${response.statusMessage()}")
+                                }
+                                else -> {
+                                    println("Code ${response.statusCode()} : ${response.statusMessage()}")
+                                }
+                            }
+                        }catch (e : IllegalArgumentException){
+                            fire(NotificationEvent("Wrong Url", "Please make sure to give a valid url ($url) ", NotificationType.ERROR))
+                            fire(NotificationEvent("Error", "Process Fail", NotificationType.ERROR))
+                            println(e.message)
+                            println("Please make sure to give a valid url ($url) ")
+                            println("Process Fail")
+                            return@runAsync
+                        }catch (e : Exception){
+                            fire(NotificationEvent("Error", e.message!!, NotificationType.ERROR))
+                            println(e.message)
+                            return@runAsync
+                        }
+                    }while (source.pagination and hasNext)
+                    part.checkProperty.value = true
+                }
+            }
+            fire(NotificationEvent("Run", "Process finish", NotificationType.INFORMATION))
+            println("Process finish - Completed successfully")
+            updateTitle("Completed successfully")
+            updateMessage("")
+            //Thread.sleep(2000)
+            check.lockProperty.value = true
+        }
+    }
+
+    fun delimiter(str : String, delimiter: PartDelimiter) : String{
+        if (delimiter.equals(PartDelimiter.DEFAULT).not()) str.replace(" ",delimiter.delimiter, true)
+        return str
     }
 }

@@ -34,6 +34,7 @@ class CheckPartsMasterWorkspace : Workspace("Check Part Master", Workspace.Navig
     }
 
     init {
+        dockInNewScope<Home>()
         inDynamicComponentMode {
             tabContainer.tabs.onChange {
                 if(tabContainer.tabs.isEmpty()){

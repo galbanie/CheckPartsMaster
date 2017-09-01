@@ -9,6 +9,9 @@ import tornadofx.*
  */
 class GeneralConf : View("General") {
     override val configPath = app.configBasePath.resolve("app.properties")
+    init {
+
+    }
     override val root = borderpane {
         center{
             form{
@@ -55,7 +58,33 @@ class GeneralConf : View("General") {
                         field {
                             button(graphic = FontAwesomeIconView(FontAwesomeIcon.LIST)) {
                                 action {
-
+                                    find<Browser>(params = mapOf(Browser::url to "http://proxydb.net")).openWindow()
+                                }
+                            }
+                        }
+                    }
+                }
+                fieldset("Timeout") {
+                    field("Millisecond") {
+                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("timeout").toInt(), amountToStepBy = 500, editable = true){
+                            valueProperty().onChange {
+                                with(config){
+                                    set("timeout", value.toString())
+                                    save()
+                                }
+                            }
+                        }
+                    }
+                }
+                fieldset("Browser") {
+                    field("Type") {
+                        combobox<String> {
+                            selectionModel.select(config.string("browser"))
+                            items.setAll("System","Embedded")
+                            selectionModel.selectedItemProperty().onChange {
+                                with(config) {
+                                    set("browser", selectedItem)
+                                    save()
                                 }
                             }
                         }

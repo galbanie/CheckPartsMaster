@@ -8,6 +8,11 @@ import javafx.scene.web.WebView
  */
 class Browser : Fragment() {
     val url : String by param()
+    val _title : String? by nullableParam()
+
+    init {
+        title = _title ?: url
+    }
 
     override val root = webview {
         engine.apply {

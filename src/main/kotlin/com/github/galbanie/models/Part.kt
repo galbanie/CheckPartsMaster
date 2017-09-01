@@ -11,7 +11,7 @@ import tornadofx.*
  */
 class Part(part : String, check : Boolean = false) {
     val partProperty = SimpleStringProperty(part)
-    var part: String by partProperty
+    var part by partProperty
 
     val checkProperty = SimpleBooleanProperty(check)
     var check by checkProperty

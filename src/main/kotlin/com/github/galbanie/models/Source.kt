@@ -79,7 +79,7 @@ class Source : Serializable{
     }
 
     override fun toString(): String {
-        return super.toString()
+        return "$name"
     }
 }
 

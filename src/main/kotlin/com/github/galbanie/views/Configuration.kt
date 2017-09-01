@@ -7,10 +7,10 @@ import javafx.scene.control.TabPane
 /**
  * Created by Galbanie on 2017-07-31.
  */
-class Configuration : View() {
-    //override val configPath = app.configBasePath.resolve("cpm.properties")
+class Configuration : View("Configuration") {
     val generalConfView : GeneralConf by inject()
     val databaseConfView : DatabaseConf by inject()
+    lateinit var tabPane : TabPane
 
     init {
 
@@ -20,7 +20,7 @@ class Configuration : View() {
         //prefHeight = 540.0
         //prefWidth = 540.0
         center {
-            tabpane {
+            tabPane = tabpane {
                 tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
                 tab(generalConfView){
 

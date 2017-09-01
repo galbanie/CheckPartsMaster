@@ -1,6 +1,5 @@
 package com.github.galbanie.utils
 
-import com.github.galbanie.PartUpdated
 import com.github.galbanie.models.Part
 import javafx.scene.control.ContentDisplay
 import javafx.scene.control.ListCell
@@ -24,12 +23,9 @@ class PartListCell(val checkId : UUID) : ListCell<Part>() {
         }
         textfield.setOnAction {
             if(item.part != textfield.text){
-                var old = item
-                var new = Part(textfield.text, false)
-                FX.eventbus.fire(PartUpdated(checkId, old, new))
                 item.part = textfield.text
-                item.check = false
-                this.text = textfield.text + if(item!!.check) "\t (Done)" else "\t (To Do)"
+                item.checkProperty.value = false
+                this.text = textfield.text + if(item!!.checkProperty.value) "\t (Done)" else "\t (To Do)"
             }
             contentDisplay = ContentDisplay.TEXT_ONLY
         }
@@ -48,7 +44,7 @@ class PartListCell(val checkId : UUID) : ListCell<Part>() {
                 text = null
             }
             else{
-                text = item!!.part + if(item.check) "\t (Done)" else "\t (To Do)"
+                text = item!!.part + if(item.checkProperty.value) "\t (Done)" else "\t (To Do)"
             }
         }
     }
@@ -63,7 +59,7 @@ class PartListCell(val checkId : UUID) : ListCell<Part>() {
 
     override fun cancelEdit() {
         super.cancelEdit()
-        text = item.part + if(item.check) "\t (Done)" else "\t (To Do)"
+        text = item.part + if(item.checkProperty.value) "\t (Done)" else "\t (To Do)"
         contentDisplay = ContentDisplay.TEXT_ONLY
     }
 }

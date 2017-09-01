@@ -1,5 +1,6 @@
 package com.github.galbanie.models
 
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -29,6 +30,9 @@ class CheckParts {
     val resultsProperty = SimpleListProperty<Result>(FXCollections.observableArrayList())
     var results by resultsProperty
 
+    val lockProperty = SimpleBooleanProperty(false)
+    var lock by lockProperty
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other)
     }
@@ -48,5 +52,7 @@ class CheckPartsModel : ItemViewModel<CheckParts>() {
     val parts = bind(CheckParts::partsProperty)
     val sources = bind(CheckParts::sourcesProperty)
     val results = bind(CheckParts::resultsProperty)
+    val lock = bind(CheckParts::lockProperty)
 }
+
 

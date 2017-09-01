@@ -52,6 +52,10 @@ class Result {
         //return "$part|$titre|$url|${source.name}|${descriptions.joinToString("\n")}"
         return super.toString()
     }
+
+    fun matches(query : String) : Boolean{
+        return part.toLowerCase().contains(query.toLowerCase().toRegex()) || titre.toLowerCase().contains(query.toLowerCase().toRegex())
+    }
 }
 
 class ResultModel : ItemViewModel<Result>() {
