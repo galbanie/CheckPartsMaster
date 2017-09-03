@@ -25,7 +25,6 @@ import tornadofx.*
 class CheckPartsArea : Fragment() {
     val checkParts : CheckParts by param()
     val checkPartsModel : CheckPartsModel by inject()
-    val search : SearchView by inject()
     lateinit var partsListView : ListView<Part>
     lateinit var sourcesListView : ListView<Source>
     lateinit var partsTableView : TableView<Part>

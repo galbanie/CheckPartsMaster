@@ -2,11 +2,13 @@ package com.github.galbanie.views
 
 import com.github.galbanie.CheckPartsQuery
 import com.github.galbanie.ResultsListFound
+import com.github.galbanie.SearchRequest
 import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Result
 import tornadofx.*
 import javafx.scene.control.ListView
+import javafx.scene.control.SelectionMode
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.shape.StrokeLineCap
@@ -22,17 +24,17 @@ import java.util.*
 class ResultsList : Fragment() {
     val check : CheckParts by param()
     val checkPartsModel = CheckPartsModel()
-    val search : SearchView by inject()
+    val data = SortedFilteredList<Result>()
     lateinit var url : URL
     init {
         checkPartsModel.item = check
-
     }
 
     override fun onDock() {
         //search.data.bindTo()
     }
     override val root = listview<Result>(checkPartsModel.results){
+        selectionModel.selectionMode = SelectionMode.MULTIPLE
         cellCache { result ->
             hbox(10){
                 imageview(if(result.imagesUrl.isNotEmpty()) result.imagesUrl.first() else resources.url("/com/github/galbanie/Image-not-found.gif").toString()){
@@ -106,6 +108,12 @@ class ResultsList : Fragment() {
                     }
                 }
             }
+        }
+        subscribe<SearchRequest> { event ->
+            println(event.query)
+            println(items.filtered{it.matches(event.query)})
+            if(event.query.isNotEmpty())selectWhere { it.matches(event.query) }
+            else selectionModel.clearSelection()
         }
     }
 }

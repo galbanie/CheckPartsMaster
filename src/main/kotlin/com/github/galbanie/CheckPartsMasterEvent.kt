@@ -7,6 +7,7 @@ import com.github.galbanie.models.Source
 import com.github.galbanie.utils.ActionFile
 import com.github.galbanie.utils.AddType
 import com.github.galbanie.utils.NotificationType
+import javafx.beans.property.Property
 import javafx.stage.FileChooser
 import tornadofx.*
 import java.io.File
@@ -60,5 +61,5 @@ object Clear : FXEvent(EventBus.RunOn.BackgroundThread)
 object InitDataSource : FXEvent(EventBus.RunOn.BackgroundThread)
 class NotificationEvent(val title : String, val message : String, val type : NotificationType) : FXEvent()
 class ChooseFileActionEvent(val title : String, val filters : Array<FileChooser.ExtensionFilter>, val mode : FileChooserMode, val action : ActionFile) : FXEvent()
-class SearchRequest(val search : String, val source : String) : FXEvent()
+class SearchRequest(val query : String) : FXEvent()
 
