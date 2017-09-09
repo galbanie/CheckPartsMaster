@@ -17,6 +17,7 @@ import javafx.scene.shape.StrokeType
 import javafx.scene.text.FontWeight
 import java.net.URL
 import java.util.*
+import java.util.function.Predicate
 
 /**
  * Created by Galbanie on 2017-08-01.
@@ -24,16 +25,18 @@ import java.util.*
 class ResultsList : Fragment() {
     val check : CheckParts by param()
     val checkPartsModel = CheckPartsModel()
-    val data = SortedFilteredList<Result>()
+    val searchView : SearchView by inject()
+    lateinit var data : SortedFilteredList<Result>
     lateinit var url : URL
     init {
         checkPartsModel.item = check
     }
 
     override fun onDock() {
-        //search.data.bindTo()
+        data = SortedFilteredList<Result>(checkPartsModel.item.resultsProperty.value).bindTo(root)
+        data.filteredItems.predicate = Predicate{ it.matches(searchView.root.text) }
     }
-    override val root = listview<Result>(checkPartsModel.results){
+    override val root = listview<Result>(){
         selectionModel.selectionMode = SelectionMode.MULTIPLE
         cellCache { result ->
             hbox(10){
@@ -110,10 +113,11 @@ class ResultsList : Fragment() {
             }
         }
         subscribe<SearchRequest> { event ->
-            println(event.query)
-            println(items.filtered{it.matches(event.query)})
-            if(event.query.isNotEmpty())selectWhere { it.matches(event.query) }
-            else selectionModel.clearSelection()
+            //println(event.query)
+            //println(items.filtered{it.matches(event.query)})
+            /*if(event.query.isNotEmpty())selectWhere { it.matches(event.query) }
+            else selectionModel.clearSelection()*/
+            data.filteredItems.predicate = Predicate{ it.matches(event.query) }
         }
     }
 }
