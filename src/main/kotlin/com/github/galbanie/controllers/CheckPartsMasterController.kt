@@ -8,6 +8,7 @@ import com.github.galbanie.utils.NotificationType
 import com.github.galbanie.utils.PartDelimiter
 import com.github.galbanie.views.CheckPartsArea
 import com.opencsv.CSVWriter
+import org.apache.commons.validator.routines.UrlValidator
 import org.controlsfx.control.Notifications
 import org.h2.api.ErrorCode
 import org.h2.jdbc.JdbcSQLException
@@ -17,6 +18,7 @@ import org.jetbrains.exposed.sql.Database.Companion.connect
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jsoup.Jsoup
 import tornadofx.*
+import java.net.URL
 import java.nio.file.Paths
 import javax.xml.bind.JAXBContext
 
@@ -313,7 +315,7 @@ class CheckPartsMasterController : Controller() {
                                             this.titre = element.select(source.titreSelector).text()
                                             this.url = if (source.urlSelector.equals("%url%")) url else{
                                                 var href = element.select(source.urlSelector).attr("href")
-                                                if (href.startsWith(host))href
+                                                if(UrlValidator().isValid(href)) href
                                                 else host+href
                                             }
                                             this.source = source

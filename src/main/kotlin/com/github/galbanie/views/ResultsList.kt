@@ -72,7 +72,9 @@ class ResultsList : Fragment() {
                             }
                             tooltip(result.url)
                             setOnAction {
-                                hostServices.showDocument(result.url)
+                                val browser = config.string("browser","System")
+                                if(browser.isEmpty() or browser.equals("System")) hostServices.showDocument(result.url)
+                                else find<Browser>(params = mapOf(Browser::url to result.url)).openWindow()
                             }
                         }
                         label(result.part){
@@ -94,7 +96,9 @@ class ResultsList : Fragment() {
                             }
                             tooltip("${url.protocol}://${url.host}")
                             setOnAction {
-                                hostServices.showDocument("${url.protocol}://${url.host}")
+                                val browser = config.string("browser","System")
+                                if(browser.isEmpty() or browser.equals("System")) hostServices.showDocument("${url.protocol}://${url.host}")
+                                else find<Browser>(params = mapOf(Browser::url to "${url.protocol}://${url.host}")).openWindow()
                             }
                         }
                     }
