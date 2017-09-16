@@ -36,7 +36,7 @@ class Control : View() {
                 glyphSize = 18
             }
             action {
-                var cpa = workspace?.dockedComponent
+                var cpa = workspace.dockedComponent
                 if(cpa != null) {
                     cpa as CheckPartsArea
                     find<PartsAdd>(params = mapOf(PartsAdd::checkId to cpa.checkPartsModel.item.id)).openModal()
@@ -110,7 +110,7 @@ class Control : View() {
                 glyphSize = 18
             }
             action {
-                var cpa = workspace?.dockedComponent as CheckPartsArea
+                var cpa = workspace.dockedComponent as CheckPartsArea
                 if(cpa != null) cpa.root.center.replaceWith(find<ResultsList>(params = mapOf(ResultsList::check to cpa.checkPartsModel.item)).root)
             }
         }
@@ -124,7 +124,7 @@ class Control : View() {
                 glyphSize = 18
             }
             action {
-                var cpa = workspace?.dockedComponent as CheckPartsArea
+                var cpa = workspace.dockedComponent as CheckPartsArea
                 if(cpa != null) cpa.root.center.replaceWith(find<ResultsTable>(params = mapOf(ResultsList::check to cpa.checkPartsModel.item)).root)
             }
         }

@@ -23,6 +23,7 @@ import java.util.function.Predicate
  * Created by Galbanie on 2017-08-01.
  */
 class ResultsList : Fragment() {
+    override val configPath = app.configBasePath.resolve("app.properties")
     val check : CheckParts by param()
     val checkPartsModel = CheckPartsModel()
     val searchView : SearchView by inject()
@@ -96,7 +97,8 @@ class ResultsList : Fragment() {
                             }
                             tooltip("${url.protocol}://${url.host}")
                             setOnAction {
-                                val browser = config.string("browser","System")
+                                val browser = config.string("browser", "System")
+                                println(browser)
                                 if(browser.isEmpty() or browser.equals("System")) hostServices.showDocument("${url.protocol}://${url.host}")
                                 else find<Browser>(params = mapOf(Browser::url to "${url.protocol}://${url.host}")).openWindow()
                             }
