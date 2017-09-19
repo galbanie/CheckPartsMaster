@@ -15,6 +15,7 @@ import javafx.scene.shape.StrokeLineCap
 import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.shape.StrokeType
 import javafx.scene.text.FontWeight
+import org.apache.commons.validator.routines.UrlValidator
 import java.net.URL
 import java.util.*
 import java.util.function.Predicate
@@ -98,7 +99,6 @@ class ResultsList : Fragment() {
                             tooltip("${url.protocol}://${url.host}")
                             setOnAction {
                                 val browser = config.string("browser", "System")
-                                println(browser)
                                 if(browser.isEmpty() or browser.equals("System")) hostServices.showDocument("${url.protocol}://${url.host}")
                                 else find<Browser>(params = mapOf(Browser::url to "${url.protocol}://${url.host}")).openWindow()
                             }

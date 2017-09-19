@@ -10,6 +10,10 @@
     <properties>
         <kotlin.version>1.1.3</kotlin.version>
         <tornadofx.version>1.7.8</tornadofx.version>
+        <app.main.class>com.github.galbanie.CheckPartsMasterApp</app.main.class>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compile.java.version>1.8</maven.compile.java.version>
+        <env.JAVA_HOME>/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/</env.JAVA_HOME>
     </properties>
 
     <repositories>
@@ -96,8 +100,119 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.8.3</version>
                 <configuration>
+                    <jfxMainAppJarName>${project.name}.jar</jfxMainAppJarName>
+                    <verbose>true</verbose>
+                    <vendor>galbanie</vendor>
                     <mainClass>com.github.galbanie.CheckPartsMasterAppKt</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-db</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/db/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>db/</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-conf</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/conf/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>conf/</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>junit:junit</exclude>
+                                    <exclude>jmock:*</exclude>
+                                    <exclude>*:xml-apis</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>
+                                        META-INF/services/conf.file
+                                    </resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>${app.main.class}</Main-Class>
+                                        <X-Compile-Source-JDK>${maven.compile.java.version}</X-Compile-Source-JDK>
+                                        <X-Compile-Target-JDK>${maven.compile.java.version}</X-Compile-Target-JDK>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>package-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${env.JAVA_HOME}/bin/javapackager</executable>
+                            <!-- http://docs.oracle.com/javase/8/docs/technotes/tools/unix/javapackager.html -->
+                            <arguments>
+                                <argument>-deploy</argument>
+                                <argument>-native</argument>
+                                <argument>installer</argument>
+                                <argument>-appclass</argument>
+                                <argument>${app.main.class}</argument>
+                                <argument>-srcfiles</argument>
+                                <argument>${project.build.directory}/${artifactId}.jar</argument>
+                                <argument>-outdir</argument>
+                                <argument>./target</argument>
+                                <argument>-outfile</argument>
+                                <argument>${project.artifactId}</argument>
+                                <argument>-v</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -147,7 +147,7 @@ class CheckPartsMasterController : Controller() {
                     scope.sources.setAll(crudSource.findAll().toList())
                 }
                 fire(SourceListFound(scope.sources))
-                fire(DropSource(scope.sourcesDraged))
+                //fire(DropSource(scope.sourcesDraged))
             }
         }
         subscribe<SourceCreated>{
@@ -209,7 +209,7 @@ class CheckPartsMasterController : Controller() {
             }
         }
         subscribe<DragSource> {
-            println("Drag Source Event")
+            //println("Drag Source Event")
             println(scope.sourcesDraged)
             scope.sourcesDraged.setAll(it.sources)
         }
@@ -219,7 +219,7 @@ class CheckPartsMasterController : Controller() {
                 when(event.mode){
                     AddType.add -> {
                         event.parts.split("\n").map { Part(it) }.distinct().forEach{
-                            if(!parts.contains(it)) parts.add(it)
+                            if(!parts.contains(it) and it.part.isNotEmpty() and it.part.isNotBlank()) parts.add(it)
                         }
                     }
                     AddType.clearAndAdd -> parts.setAll(event.parts.split("\n").map { Part(it) }.distinct())
@@ -274,23 +274,23 @@ class CheckPartsMasterController : Controller() {
 
     private fun run(check : CheckParts, status: TaskStatus){
         runAsync(status){
-            fire(NotificationEvent("Run", "Running process in progress", NotificationType.INFORMATION))
+            fire(NotificationEvent("Run", "${check.name} - Running process in progress", NotificationType.INFORMATION))
             updateTitle("Running process in progress")
-            println("Running process in progress")
+            println("${check.name} - Running process in progress")
             check.parts.filter { it.check.not() }.forEach { part ->
                 if (check.lockProperty.value){
                     fire(NotificationEvent("Stop", "Process Stopping", NotificationType.INFORMATION))
-                    println("Process Stopping")
+                    println("${check.name} - Process Stopping")
                     return@runAsync
                 }
                 check.sources.forEach { source ->
                     updateMessage("Current part : ${part.part} - ${source.name}")
-                    println("Current part : ${part.part} - ${source.name}")
+                    println("${check.name} - Current part : ${part.part} - ${source.name}")
                     var hasNext = false
                     var url = source.url.replace("%part%",delimiter(part.part,source.delimiter),true)
                     var urlFinal  = url
                     var data = source.data.associate({ Pair(it.key,it.value.replace("%part%",delimiter(part.part,source.delimiter),true)) })
-                    println("data = $data")
+                    println("${check.name} - data = $data")
                     var start = 0
                     do {
                         try {
@@ -324,7 +324,13 @@ class CheckPartsMasterController : Controller() {
                                             if(it.isNotEmpty() and !element.select(it).isEmpty()) result.descriptions.addAll(element.select(it).map { it.text() })
                                         }
                                         source.imageSelectors.forEach {
-                                            if(it.isNotEmpty() and !element.select(it).isEmpty()) result.imagesUrl.addAll(element.select(it).map { it.attr("src") })
+                                            if(it.isNotEmpty() and !element.select(it).isEmpty()){
+                                                element.select(it).map { it.attr("src") }.forEach {
+                                                    if(UrlValidator().isValid(it)) result.imagesUrl.add(it)
+                                                    else if (UrlValidator().isValid(host+it)) result.imagesUrl.add(host+it)
+                                                }
+                                                //result.imagesUrl.addAll(element.select(it).map { it.attr("src") })
+                                            }
                                         }
                                         //check.results.add(result)
                                         if(!part.sources.contains(source))part.sources.add(source)
@@ -377,8 +383,8 @@ class CheckPartsMasterController : Controller() {
                     part.checkProperty.value = true
                 }
             }
-            fire(NotificationEvent("Run", "Process finish", NotificationType.INFORMATION))
-            println("Process finish - Completed successfully")
+            fire(NotificationEvent("Run", "${check.name} - Process finish", NotificationType.INFORMATION))
+            println("${check.name} - Process finish - Completed successfully")
             updateTitle("Completed successfully")
             updateMessage("")
             //Thread.sleep(2000)

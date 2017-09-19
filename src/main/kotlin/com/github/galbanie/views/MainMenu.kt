@@ -6,10 +6,12 @@ import com.github.galbanie.utils.Action
 import com.github.galbanie.utils.ActionFile
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
+import javafx.application.Platform
 import tornadofx.*
 import javafx.scene.control.MenuBar
 import javafx.scene.input.KeyCombination
 import javafx.stage.FileChooser
+import kotlin.system.exitProcess
 
 /**
  * Created by Galbanie on 2017-07-31.
@@ -31,7 +33,9 @@ class MainMenu : View() {
                 }
                 separator()
                 item("Quit", KeyCombination.keyCombination("Shortcut+Q")).action {
-                    kotlin.system.exitProcess(0)
+                    exitProcess(0)
+                    //Platform.exit()
+                    //FX.primaryStage.close()
                 }
             }
             menu("File") {
@@ -127,7 +131,7 @@ class MainMenu : View() {
 
                 }
                 item("Report").action {
-
+                    find<ReportView>(scope).openModal()
                 }
             }
         }

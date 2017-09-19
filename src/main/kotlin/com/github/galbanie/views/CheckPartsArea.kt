@@ -37,7 +37,7 @@ class CheckPartsArea : Fragment() {
     }
     override fun onDock() {
         checkPartsModel.item.lockProperty.onChange {
-            println(it)
+            //println(it)
         }
         with(workspace){
             hbox {
@@ -165,6 +165,7 @@ class CheckPartsArea : Fragment() {
                             checkPartsModel.item.parts.forEach{
                                 it.check = false
                             }
+                            checkPartsModel.item.results.clear()
                         }
                         else {
                             partsTableView.selectionModel.selectedItems.forEach { part ->

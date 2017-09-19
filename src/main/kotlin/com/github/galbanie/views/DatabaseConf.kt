@@ -12,6 +12,7 @@ class DatabaseConf : View("DataBase") {
     override val root = borderpane {
         center{
             form{
+                isDisable = true
                 fieldset {
                     field("Driver") {
                         combobox<String>{

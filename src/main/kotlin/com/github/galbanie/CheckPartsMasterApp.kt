@@ -28,6 +28,7 @@ class CheckPartsMasterApp : App(CheckPartsMasterWorkspace::class, Styles::class,
 
         }
     }
+
     private fun configuration(){
         // Database
         if (config.containsKey("database.url").not() or config.string("database.url", "").isNullOrBlank() or config.string("database.url", "").isNullOrEmpty()){

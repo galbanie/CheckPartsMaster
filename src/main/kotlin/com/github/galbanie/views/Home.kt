@@ -5,7 +5,7 @@ import tornadofx.*
 /**
  * Created by Galbanie on 2017-08-16.
  */
-class Home : View("Check Parts Master Home") {
+class Home : View("Home") {
     init {
         disableSave()
         disableDelete()
@@ -17,14 +17,14 @@ class Home : View("Check Parts Master Home") {
                 style {
                     padding = box(10.px)
                 }
-                text = "Check Part Master is the best check in web\n" +
+                /*text = "Check Part Master is the best check in web\n" +
                         "Every people say that so what\n" +
                         "For best content, please buy my bul shit\n" +
-                        "That so prezy"
+                        "That so prezy"*/
                 isWrapText = true
             }
         }
-        center = find<Browser>(params = mapOf(Browser::url to "https://www.youtube.com/embed/oyA8odjCzZ4")).root
+        center = find<Browser>(params = mapOf(Browser::url to "https://www.youtube.com/embed/-W5K0x7AP9s")).root
         center.style {
             padding = box(10.px)
         }
