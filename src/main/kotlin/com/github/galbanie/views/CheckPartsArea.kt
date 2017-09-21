@@ -287,7 +287,9 @@ class CheckPartsArea : Fragment() {
                     selectionModel.selectionMode = SelectionMode.MULTIPLE
                     isEditable = true
                     column("",Part::checkProperty).apply {
-                        pctWidth(10.0)
+                        //pctWidth(10.0)
+                        //weigthedWidth(1.0)
+                        prefWidth(25.0)
                         cellFormat {
                             if(it){
                                 /*if (rowItem.sources.isNotEmpty()){
@@ -319,19 +321,23 @@ class CheckPartsArea : Fragment() {
                         }
                     }
                     column("Part", Part::part){
+                        //weigthedWidth(3.0)
+                        prefWidth(125.0)
                         useTextField(DefaultStringConverter())
-                        pctWidth(60.0)
+                        //pctWidth(60.0)
                     }
                     column("Sources", Part::sourcesProperty).apply {
+                        //weigthedWidth(3.0)
+                        prefWidth(100.0)
                         cellFormat {
                             if(it.isNotEmpty()){
                                 text = rowItem.sources.joinToString()
                             }
                             else text = "No Source"
                         }
-                        pctWidth(30.0)
+                        //pctWidth(30.0)
                     }
-                    columnResizePolicy = SmartResize.POLICY
+                    //columnResizePolicy = SmartResize.POLICY
                 }
                 sourcesListView = listview<Source>(checkPartsModel.sources) {
                     cellCache {
