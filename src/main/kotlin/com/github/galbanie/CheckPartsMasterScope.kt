@@ -11,6 +11,7 @@ import tornadofx.*
  */
 class CheckPartsMasterScope : Scope() {
     val checks = FXCollections.observableArrayList<CheckParts>()
+    val checksSelected = FXCollections.observableArrayList<CheckParts>()
     val sources = FXCollections.observableArrayList<Source>()
     val sourcesSelected = FXCollections.observableArrayList<Source>()
     val sourcesDraged = FXCollections.observableArrayList<Source>()

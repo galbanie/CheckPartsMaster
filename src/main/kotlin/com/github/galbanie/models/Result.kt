@@ -49,8 +49,8 @@ class Result {
     }
 
     override fun toString(): String {
-        //return "$part|$titre|$url|${source.name}|${descriptions.joinToString("\n")}"
-        return super.toString()
+        return "$part|$titre|$url|${source.name}|${descriptions.joinToString("\n")}"
+        //return super.toString()
     }
 
     fun matches(query : String) : Boolean{

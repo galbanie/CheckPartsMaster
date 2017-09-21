@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.Database.Companion.connect
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jsoup.Jsoup
 import tornadofx.*
-import java.net.URL
+import java.net.SocketTimeoutException
 import java.nio.file.Paths
 import javax.xml.bind.JAXBContext
 
@@ -113,16 +113,28 @@ class CheckPartsMasterController : Controller() {
             scope.checks.remove(it.check)
             fire(CheckPartsListRequest)
         }
+        subscribe<CheckPartsSelectedListFound> {
+            scope.checksSelected.setAll(it.checks)
+        }
         subscribe<LoadCheckDataFromXML> {
             try {
-                val jaxbContext = JAXBContext.newInstance(CheckPartsWrapper::class.java)
+                val jaxbContext = JAXBContext.newInstance(CheckPartsListWrapper::class.java)
                 val unmarshaller = jaxbContext.createUnmarshaller()
-                val wrapper = unmarshaller.unmarshal(it.file) as CheckPartsWrapper
-                scope.checks.setAll(wrapper.checks)
-                fire(CheckPartsListRequest)
-                scope.checks.forEach {
-                    workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it))
+                val wrapper = unmarshaller.unmarshal(it.file) as CheckPartsListWrapper
+                //scope.checks.setAll(wrapper.checks)
+                wrapper.checks.forEach {
+                    if(!scope.checks.contains(it)) {
+                        scope.checks.add(it)
+                        workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it))
+                    }
+                    else{
+                        fire(NotificationEvent("Check Parts Duplicate Id", "${it.name}(${it.id}) exist.", NotificationType.ERROR))
+                    }
                 }
+                fire(CheckPartsListRequest)
+                /*scope.checks.forEach {
+                    workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it))
+                }*/
             }catch (e : Exception){
                 fire(NotificationEvent("Could not load data", "Could not load data from file:\n${it.file.path}", NotificationType.ERROR))
             }
@@ -131,10 +143,10 @@ class CheckPartsMasterController : Controller() {
             var cpa = workspace.dockedComponent
             if(cpa != null && cpa is CheckPartsArea){
                 try {
-                    val jaxbContext = javax.xml.bind.JAXBContext.newInstance(CheckPartsWrapper::class.java)
+                    val jaxbContext = javax.xml.bind.JAXBContext.newInstance(CheckPartsListWrapper::class.java)
                     val marshaller = jaxbContext.createMarshaller()
                     marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, true)
-                    marshaller.marshal(CheckPartsWrapper().apply{ checks.addAll(scope.checks)}, event.file)
+                    marshaller.marshal(CheckPartsListWrapper().apply{ checks.addAll(scope.checksSelected)}, event.file)
                 }catch (e : Exception){
                     fire(NotificationEvent("Could not save data", "Could not save data to file:\n${event.file.path}", NotificationType.ERROR))
                 }
@@ -374,6 +386,10 @@ class CheckPartsMasterController : Controller() {
                             println("Please make sure to give a valid url ($url) ")
                             println("Process Fail")
                             return@runAsync
+                        }catch (e : SocketTimeoutException){
+                            fire(NotificationEvent("Error", "$part - ${e.message!!}", NotificationType.ERROR))
+                            println(e.message)
+                            continue
                         }catch (e : Exception){
                             fire(NotificationEvent("Error", e.message!!, NotificationType.ERROR))
                             println(e.message)

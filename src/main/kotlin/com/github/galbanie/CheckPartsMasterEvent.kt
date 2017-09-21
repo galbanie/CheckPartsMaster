@@ -37,6 +37,7 @@ class CheckPartsQuery(val id : UUID) : FXEvent(EventBus.RunOn.BackgroundThread)
 class CheckPartsCreated(val check : CheckParts) : FXEvent()
 class CheckPartsUpdated(val check : CheckParts) : FXEvent()
 class CheckPartsRemoved(val check : CheckParts) : FXEvent()
+class CheckPartsSelectedListFound(val checks : List<CheckParts>) : FXEvent()
 class SaveCheckDataToXMLFile(val file : File) : FXEvent()
 class LoadCheckDataFromXML(val file : File) : FXEvent()
 

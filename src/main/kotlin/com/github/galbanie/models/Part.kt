@@ -9,7 +9,7 @@ import tornadofx.*
 /**
  * Created by Galbanie on 2017-08-01.
  */
-class Part(part : String, check : Boolean = false) {
+class Part(part : String = "", check : Boolean = false) {
     val partProperty = SimpleStringProperty(part)
     var part by partProperty
 

@@ -34,7 +34,12 @@ class CheckParts {
     var lock by lockProperty
 
     override fun equals(other: Any?): Boolean {
-        return super.equals(other)
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+        other as CheckParts
+        if (id != other.id) return false
+        //if (id != other.id && name != other.name) return false
+        return true
     }
 
     override fun hashCode(): Int {

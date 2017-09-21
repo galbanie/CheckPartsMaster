@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement
  * Created by Galbanie on 2017-08-13.
  */
 @XmlRootElement(name = "checks")
-class CheckPartsWrapper {
+class CheckPartsListWrapper {
     @XmlElement(name = "check")
     val checks : MutableCollection<CheckParts> = mutableListOf()
 }

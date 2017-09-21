@@ -70,7 +70,8 @@ class MainMenu : View() {
                 item("Save", KeyCombination.keyCombination("Shortcut+S"), FontAwesomeIconView(FontAwesomeIcon.FLOPPY_ALT)){
                     disableWhen(status.running)
                     action {
-                        fire(ChooseFileActionEvent("Save Check Parts", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Save, ActionFile.saveCheckToXml))
+                        find<ChooseCheckParts>().openModal()
+                        //fire(ChooseFileActionEvent("Save Check Parts", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Save, ActionFile.saveCheckToXml))
                     }
                 }
                 menu("Save Result As") {

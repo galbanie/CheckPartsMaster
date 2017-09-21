@@ -5,6 +5,8 @@ import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Part
 import com.github.galbanie.models.Source
+import com.github.galbanie.utils.Action
+import com.github.galbanie.utils.ActionFile
 import com.github.galbanie.utils.PartListCell
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -16,6 +18,7 @@ import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.paint.Color
+import javafx.stage.FileChooser
 import javafx.util.converter.DefaultStringConverter
 import tornadofx.*
 
@@ -28,7 +31,7 @@ class CheckPartsArea : Fragment() {
     lateinit var partsListView : ListView<Part>
     lateinit var sourcesListView : ListView<Source>
     lateinit var partsTableView : TableView<Part>
-    override val savable = SimpleBooleanProperty(false)
+    //override val savable = SimpleBooleanProperty(false)
     val status : TaskStatus by inject(scope)
     init {
         checkPartsModel.item = checkParts
@@ -40,6 +43,18 @@ class CheckPartsArea : Fragment() {
             //println(it)
         }
         with(workspace){
+            button {
+                addClass("icon-only")
+                graphic = FontAwesomeIconView(FontAwesomeIcon.PENCIL).apply {
+                    style {
+                        fill = c("#818181")
+                    }
+                    glyphSize = 18
+                }
+                action {
+                    find<CheckPartsEditor>(params = mapOf(CheckPartsEditor::action to Action.EDIT, CheckPartsEditor::check to checkPartsModel.item)).openModal()
+                }
+            }
             hbox {
                 visibleWhen { workspace.dockedComponentProperty.booleanBinding{it != null} }
                 button {
@@ -147,8 +162,17 @@ class CheckPartsArea : Fragment() {
                     action {
                         if(partsTableView.selectionModel.isEmpty){
                             checkPartsModel.item.parts.clear()
+                            checkPartsModel.item.results.clear()
                         }
-                        else checkPartsModel.item.parts.removeAll(partsTableView.selectionModel.selectedItems)
+                        else {
+                            val parts = partsTableView.selectionModel.selectedItems
+                            println(parts)
+                            parts.forEach { part ->
+                                checkPartsModel.item.results.removeAll(checkPartsModel.item.results.filter { it.part.equals(part.part) })
+                                //checkPartsModel.item.parts.remove(part)
+                            }
+                            checkPartsModel.item.parts.removeAll(parts)
+                        }
                     }
                 }
                 button {
@@ -353,9 +377,10 @@ class CheckPartsArea : Fragment() {
 
     }
     override fun onSave() {
-        checkPartsModel.commit{
-
-        }
+        //checkPartsModel.commit{
+            fire(CheckPartsSelectedListFound(listOf(checkPartsModel.item)))
+        //}
+        fire(ChooseFileActionEvent("Save Web Check Parts", arrayOf(FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml")), FileChooserMode.Save, ActionFile.saveCheckToXml))
     }
 
     override fun onRefresh() {
