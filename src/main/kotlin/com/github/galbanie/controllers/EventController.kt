@@ -20,12 +20,13 @@ import org.jsoup.Jsoup
 import tornadofx.*
 import java.net.SocketTimeoutException
 import java.nio.file.Paths
+import java.util.*
 import javax.xml.bind.JAXBContext
 
 /**
  * Created by Galbanie on 2017-08-04.
  */
-class CheckPartsMasterController : Controller() {
+class EventController : Controller() {
     override val scope  = super.scope as CheckPartsMasterScope
     override val configPath = Paths.get("conf/app.properties")
     val dataSource = JdbcDataSource()
@@ -69,7 +70,7 @@ class CheckPartsMasterController : Controller() {
                 if(cpa != null){
                     if(cpa is CheckPartsArea){
                         cpa.checkPartsModel.item.lockProperty.value = false
-                        this@CheckPartsMasterController.run(cpa.checkPartsModel.item, cpa.status)
+                        this@EventController.run(cpa.checkPartsModel.item, cpa.status)
                     }
                 }
             }
@@ -310,7 +311,7 @@ class CheckPartsMasterController : Controller() {
                             if (config.boolean("proxy.active")) connection.proxy(config.string("proxy.address","127.0.0.1"), config.string("proxy.port", "8080")!!.toInt())
                             connection.ignoreHttpErrors(true)
                             connection.followRedirects(true)
-                            connection.timeout(config.string("timeout", "7000").toInt())
+                            connection.timeout(config.string("timeout.millis", "7000").toInt())
                             connection.ignoreContentType(true)
                             connection.method(source.method)
                             connection.data(data)
@@ -321,47 +322,50 @@ class CheckPartsMasterController : Controller() {
                                     var doc = response.parse()
                                     var result : Result
                                     var elements = doc.select(source.elementSelector)
-                                    elements.forEach { element ->
-                                        result = Result().apply {
-                                            this.part = part.part
-                                            this.titre = element.select(source.titreSelector).text()
-                                            this.url = if (source.urlSelector.equals("%url%")) url else{
-                                                var href = element.select(source.urlSelector).attr("href")
-                                                if(UrlValidator().isValid(href)) href
-                                                else host+href
-                                            }
-                                            this.source = source
-                                        }
-                                        source.descriptionSelectors.forEach {
-                                            if(it.isNotEmpty() and !element.select(it).isEmpty()) result.descriptions.addAll(element.select(it).map { it.text() })
-                                        }
-                                        source.imageSelectors.forEach {
-                                            if(it.isNotEmpty() and !element.select(it).isEmpty()){
-                                                element.select(it).map { it.attr("src") }.forEach {
-                                                    if(UrlValidator().isValid(it)) result.imagesUrl.add(it)
-                                                    else if (UrlValidator().isValid(host+it)) result.imagesUrl.add(host+it)
+                                    if(!elements.isEmpty()){
+                                        elements.forEach { element ->
+                                            result = Result().apply {
+                                                this.part = part.part
+                                                this.titre = element.select(source.titreSelector).text()
+                                                this.url = if (source.urlSelector.equals("%url%")) url else{
+                                                    var href = element.select(source.urlSelector).attr("href")
+                                                    if(UrlValidator().isValid(href)) href
+                                                    else host+href
                                                 }
-                                                //result.imagesUrl.addAll(element.select(it).map { it.attr("src") })
+                                                this.source = source
+                                            }
+                                            source.descriptionSelectors.forEach {
+                                                if(it.isNotEmpty() and !element.select(it).isEmpty()) result.descriptions.addAll(element.select(it).map { it.text() })
+                                            }
+                                            source.imageSelectors.forEach {
+                                                if(it.isNotEmpty() and !element.select(it).isEmpty()){
+                                                    element.select(it).map { it.attr("src") }.forEach {
+                                                        if(UrlValidator().isValid(it)) result.imagesUrl.add(it)
+                                                        else if (UrlValidator().isValid(host+it)) result.imagesUrl.add(host+it)
+                                                    }
+                                                    //result.imagesUrl.addAll(element.select(it).map { it.attr("src") })
+                                                }
+                                            }
+                                            //check.results.add(result)
+                                            if(!part.sources.contains(source))part.sources.add(source)
+                                            fire(ResultAdded(check.id, result))
+                                        }
+                                        if(source.pagination and (elements.count() > 0)){
+                                            hasNext = true
+                                            if((source.urlPagination.isNotEmpty() and source.urlPagination.isNotBlank())){
+                                                start += source.numberElementPagination
+                                                urlFinal = url + source.urlPagination.replace("%start%", (start).toString(), true)
+                                            }
+                                            else if(source.linkPaginationSelector.isNotEmpty() and source.linkPaginationSelector.isNotBlank()){
+                                                urlFinal = doc.select(source.linkPaginationSelector).attr("href")
+                                            }
+                                            else {
+                                                hasNext = false
                                             }
                                         }
-                                        //check.results.add(result)
-                                        if(!part.sources.contains(source))part.sources.add(source)
-                                        fire(ResultAdded(check.id, result))
+                                        else hasNext = false
+                                        if (config.boolean("latency.active")) Thread.sleep(config.string("latency.millis", "7000").toLong())
                                     }
-                                    if(source.pagination and (elements.count() > 0)){
-                                        hasNext = true
-                                        if((source.urlPagination.isNotEmpty() and source.urlPagination.isNotBlank())){
-                                            start += source.numberElementPagination
-                                            urlFinal = url + source.urlPagination.replace("%start%", (start).toString(), true)
-                                        }
-                                        else if(source.linkPaginationSelector.isNotEmpty() and source.linkPaginationSelector.isNotBlank()){
-                                            urlFinal = doc.select(source.linkPaginationSelector).attr("href")
-                                        }
-                                        else {
-                                            hasNext = false
-                                        }
-                                    }
-                                    else hasNext = false
                                 }
                                 in 201..206 -> {
                                     fire(NotificationEvent("Code ${response.statusCode()}", response.statusMessage(), NotificationType.INFORMATION))

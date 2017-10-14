@@ -22,7 +22,7 @@ import javafx.scene.input.TransferMode
  */
 class SourcesList : View("Source") {
     val sourceModel : SourceModel by inject()
-    val listDataFormat = DataFormat("listOfSources")
+    //val listDataFormat = DataFormat("listOfSources")
     override val root = ListView<Source>()
     init {
         with(root){

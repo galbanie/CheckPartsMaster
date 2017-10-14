@@ -1,12 +1,8 @@
 package com.github.galbanie
 
-import com.github.galbanie.controllers.CheckPartsMasterController
 import com.github.galbanie.views.*
 import javafx.geometry.Insets
-import javafx.scene.control.TextArea
 import tornadofx.*
-import java.io.Console
-import java.io.PrintStream
 
 /**
  * Created by Galbanie on 2017-07-31.

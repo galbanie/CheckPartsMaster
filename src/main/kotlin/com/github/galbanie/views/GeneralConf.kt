@@ -66,10 +66,33 @@ class GeneralConf : View("General") {
                 }
                 fieldset("Timeout") {
                     field("Millisecond") {
-                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("timeout").toInt(), amountToStepBy = 500, editable = true){
+                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("timeout.millis", "7000").toInt(), amountToStepBy = 500, editable = true){
                             valueProperty().onChange {
                                 with(config){
-                                    set("timeout", value.toString())
+                                    set("timeout.millis", value.toString())
+                                    save()
+                                }
+                            }
+                        }
+                    }
+                }
+                fieldset("latency") {
+                    field("Active") {
+                        checkbox {
+                            isSelected = config.boolean("latency.active")
+                            setOnAction {
+                                with(config){
+                                    set("latency.active", isSelected.toString())
+                                    save()
+                                }
+                            }
+                        }
+                    }
+                    field("Millisecond") {
+                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("latency.millis","5000").toInt(), amountToStepBy = 500, editable = true){
+                            valueProperty().onChange {
+                                with(config){
+                                    set("latency.millis", value.toString())
                                     save()
                                 }
                             }

@@ -1,16 +1,16 @@
 package com.github.galbanie
 
-import com.github.galbanie.controllers.CheckPartsMasterController
+import com.github.galbanie.controllers.EventController
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 import tornadofx.*
 
 class CheckPartsMasterApp : App(CheckPartsMasterWorkspace::class, Styles::class, CheckPartsMasterScope()){
-    val controller : CheckPartsMasterController by inject(scope)
+    val eventController: EventController by inject(scope)
     init {
         reloadStylesheetsOnFocus()
-        controller
+        eventController
     }
     override fun start(stage: Stage) {
         super.start(stage)
@@ -21,8 +21,8 @@ class CheckPartsMasterApp : App(CheckPartsMasterWorkspace::class, Styles::class,
         fire(InitDataSource)
         configuration()
         try {
-            controller.connectDatabase()
-            controller.createTables()
+            eventController.connectDatabase()
+            eventController.createTables()
         }
         catch (e : org.h2.jdbc.JdbcSQLException){
 

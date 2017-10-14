@@ -1,8 +1,13 @@
 package com.github.galbanie.views
 
+import com.github.galbanie.CheckPartsMasterApp
+import com.github.galbanie.CheckPartsMasterScope
+import com.github.galbanie.CheckPartsMasterWorkspace
+import com.github.galbanie.Styles
 import javafx.geometry.Insets
 import tornadofx.*
 import javafx.scene.control.TabPane
+import javafx.stage.Stage
 
 /**
  * Created by Galbanie on 2017-07-31.
@@ -30,10 +35,16 @@ class Configuration : View("Configuration") {
                 }
             }
         }
+
         bottom {
             padding = Insets(10.0)
             buttonbar {
-                //button("Save")
+                button("Reload").action {
+                    primaryStage.close()
+                    runLater {
+                        CheckPartsMasterApp().start(Stage())
+                    }
+                }
                 button("Finish").action {
                     close()
                 }
