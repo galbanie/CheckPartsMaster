@@ -53,8 +53,11 @@ class Result {
         //return super.toString()
     }
 
-    fun matches(query : String) : Boolean{
-        return part.toLowerCase().contains(query.toLowerCase().toRegex()) || titre.toLowerCase().contains(query.toLowerCase().toRegex())
+    fun matches(query : String, parts : List<String> = arrayListOf(), sources : List<String> = arrayListOf()) : Boolean{
+        //println("query = $query - parts = $parts - sources = $sources")
+        //return parts.contains(part) || sources.contains(source.name) || part.toLowerCase().contains(query.toLowerCase().toRegex()) || titre.toLowerCase().contains(query.toLowerCase().toRegex())
+        return part.toLowerCase().contains(query.toLowerCase().toRegex()) || titre.toLowerCase().contains(query.toLowerCase().toRegex()) ||
+                source.name.toLowerCase().contains(query.toLowerCase().toRegex())
     }
 }
 

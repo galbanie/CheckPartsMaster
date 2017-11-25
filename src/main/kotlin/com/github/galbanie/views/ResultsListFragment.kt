@@ -1,14 +1,10 @@
 package com.github.galbanie.views
 
-import com.github.galbanie.CheckPartsQuery
-import com.github.galbanie.ResultsListFound
 import com.github.galbanie.SearchRequest
 import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Result
 import javafx.beans.binding.Bindings
-import tornadofx.*
-import javafx.scene.control.ListView
 import javafx.scene.control.SelectionMode
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
@@ -16,15 +12,17 @@ import javafx.scene.shape.StrokeLineCap
 import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.shape.StrokeType
 import javafx.scene.text.FontWeight
-import org.apache.commons.validator.routines.UrlValidator
+import tornadofx.*
 import java.net.URL
-import java.util.*
 import java.util.function.Predicate
+import javafx.beans.binding.Bindings.createObjectBinding
+
+
 
 /**
  * Created by Galbanie on 2017-08-01.
  */
-class ResultsList : Fragment() {
+class ResultsListFragment : Fragment() {
     override val configPath = app.configBasePath.resolve("app.properties")
     val check : CheckParts by param()
     val checkPartsModel = CheckPartsModel()
@@ -34,11 +32,13 @@ class ResultsList : Fragment() {
     init {
         checkPartsModel.item = check
         //data.filteredItems.predicateProperty().bind(Bindings.createObjectBinding( { -> },searchView.root.textProperty()))
+        //data.filterWhen(searchView.root.textProperty(), { query, item -> item.matches(query) })
     }
 
     override fun onDock() {
         data = SortedFilteredList<Result>(checkPartsModel.item.resultsProperty.value).bindTo(root)
-        data.filteredItems.predicate = Predicate{ it.matches(searchView.root.text) }
+        data.filterWhen(searchView.root.textProperty(), { query, item -> item.matches(query) })
+        //data.filteredItems.predicate = Predicate{ it.matches(searchView.root.text) }
     }
     override val root = listview<Result>(){
         selectionModel.selectionMode = SelectionMode.MULTIPLE
@@ -121,11 +121,13 @@ class ResultsList : Fragment() {
             }
         }
         subscribe<SearchRequest> { event ->
-            //println(event.query)
-            //println(items.filtered{it.matches(event.query)})
-            /*if(event.query.isNotEmpty())selectWhere { it.matches(event.query) }
-            else selectionModel.clearSelection()*/
-            data.filteredItems.predicate = Predicate{ it.matches(event.query, event.parts, event.sources) }
+            //data.filteredItems.predicate = Predicate{ it.matches(event.query, event.parts, event.sources) }
+            //data.filteredItems.predicateProperty().bind(Bindings.createObjectBinding({{}},))
+            //data.filteredItems.predicateProperty().bind(Bindings.createObjectBinding({ { result ->  &&  } }))
+            /*filteredList.predicateProperty().bind(Bindings.createObjectBinding({ { person -> person.getFirstName().contains(firstNameFilterTextField.getText()) && person.getLastName().contains(lastNameFilterTextField.getText()) } },
+                    firstNameFilterTextField.textProperty(),
+                    lastNameFilterTextField.textProperty()
+            ))*/
         }
     }
 }

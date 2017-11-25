@@ -1,21 +1,17 @@
 package com.github.galbanie.views
 
-import com.github.galbanie.CheckPartsQuery
-import com.github.galbanie.ResultsListFound
 import com.github.galbanie.SearchRequest
 import com.github.galbanie.models.CheckParts
 import com.github.galbanie.models.CheckPartsModel
 import com.github.galbanie.models.Result
-import tornadofx.*
-import javafx.scene.control.TableView
 import javafx.util.converter.DefaultStringConverter
-import java.util.*
+import tornadofx.*
 import java.util.function.Predicate
 
 /**
  * Created by Galbanie on 2017-08-03.
  */
-class ResultsTable : Fragment() {
+class ResultsTableFragment : Fragment() {
     val check : CheckParts by param()
     val checkPartsModel = CheckPartsModel()
     val searchView : SearchView by inject()
@@ -41,6 +37,7 @@ class ResultsTable : Fragment() {
         columnResizePolicy = SmartResize.POLICY
         subscribe<SearchRequest> { event ->
             data.filteredItems.predicate = Predicate{ it.matches(event.query, event.parts, event.sources) }
+            data
         }
     }
 }

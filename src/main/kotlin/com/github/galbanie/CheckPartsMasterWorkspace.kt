@@ -9,7 +9,7 @@ import tornadofx.*
  */
 class CheckPartsMasterWorkspace : Workspace("Check Part Master", Workspace.NavigationMode.Tabs) {
     init {
-        add(MainMenu::class)
+        add(TopMenuView::class)
         add(SearchView::class)
         //add(Control::class)
     }

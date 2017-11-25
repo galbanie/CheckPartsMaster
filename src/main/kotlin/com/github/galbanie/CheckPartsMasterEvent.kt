@@ -62,5 +62,6 @@ object Clear : FXEvent(EventBus.RunOn.BackgroundThread)
 object InitDataSource : FXEvent(EventBus.RunOn.BackgroundThread)
 class NotificationEvent(val title : String, val message : String, val type : NotificationType) : FXEvent()
 class ChooseFileActionEvent(val title : String, val filters : Array<FileChooser.ExtensionFilter>, val mode : FileChooserMode, val action : ActionFile) : FXEvent()
-class SearchRequest(val query : String) : FXEvent()
+class SearchQueryRequest(val query : String) : FXEvent()
+class SearchRequest(val query : String, val parts : List<String> = arrayListOf(), val sources : List<String> = arrayListOf()) : FXEvent()
 

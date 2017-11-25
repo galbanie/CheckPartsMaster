@@ -41,6 +41,7 @@ class Configuration : View("Configuration") {
             buttonbar {
                 button("Reload").action {
                     primaryStage.close()
+                    //app.stop()
                     runLater {
                         CheckPartsMasterApp().start(Stage())
                     }

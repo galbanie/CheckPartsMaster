@@ -1,10 +1,7 @@
 package com.github.galbanie.models
 
 import com.github.galbanie.utils.PartDelimiter
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleListProperty
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
 import javafx.collections.FXCollections
 import org.jsoup.Connection
 import tornadofx.*
@@ -66,6 +63,21 @@ class Source : Serializable{
     val delimiterProperty = SimpleObjectProperty<PartDelimiter>(PartDelimiter.DEFAULT)
     var delimiter by delimiterProperty
 
+    val activeProxyProperty = SimpleBooleanProperty(false)
+    var activeProxy by activeProxyProperty
+
+    val proxyAddressProperty = SimpleStringProperty("127.0.0.1")
+    var proxyAddress by proxyAddressProperty
+
+    val proxyPortProperty = SimpleIntegerProperty(8080)
+    var proxyPort by proxyPortProperty
+
+    val timeoutProperty = SimpleIntegerProperty(0)
+    var timeout by timeoutProperty
+
+    val latencyProperty = SimpleIntegerProperty(0)
+    var latency by latencyProperty
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other?.javaClass != javaClass) return false
@@ -101,4 +113,9 @@ class SourceModel : ItemViewModel<Source>() {
     val urlPagination = bind(Source::urlPaginationProperty,autocommit = true)
     val numberElementPagination = bind(Source::numberElementPaginationProperty,autocommit = true)
     val delimiter = bind(Source::delimiterProperty,autocommit = true)
+    val activeProxy = bind(Source::activeProxyProperty,autocommit = true)
+    val proxyAddress = bind(Source::proxyAddressProperty,autocommit = true)
+    val proxyPort = bind(Source::proxyPortProperty,autocommit = true)
+    val timeout = bind(Source::timeoutProperty,autocommit = true)
+    val latency = bind(Source::latencyProperty,autocommit = true)
 }

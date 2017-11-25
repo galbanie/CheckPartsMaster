@@ -15,7 +15,7 @@ class GeneralConf : View("General") {
     override val root = borderpane {
         center{
             form{
-                fieldset("Proxy") {
+                /*fieldset("Proxy") {
                     field("Active") {
                         checkbox {
                             isSelected = config.boolean("proxy.active")
@@ -66,7 +66,7 @@ class GeneralConf : View("General") {
                 }
                 fieldset("Timeout") {
                     field("Millisecond") {
-                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("timeout.millis", "7000").toInt(), amountToStepBy = 500, editable = true){
+                        spinner<Int>(min = 0, max = 30000, initialValue = config.string("timeout.millis", "0").toInt(), amountToStepBy = 500, editable = true){
                             valueProperty().onChange {
                                 with(config){
                                     set("timeout.millis", value.toString())
@@ -89,7 +89,7 @@ class GeneralConf : View("General") {
                         }
                     }
                     field("Millisecond") {
-                        spinner<Int>(min = 5000, max = 14000, initialValue = config.string("latency.millis","5000").toInt(), amountToStepBy = 500, editable = true){
+                        spinner<Int>(min = 1000, max = 14000, initialValue = config.string("latency.millis","5000").toInt(), amountToStepBy = 500, editable = true){
                             valueProperty().onChange {
                                 with(config){
                                     set("latency.millis", value.toString())
@@ -98,7 +98,7 @@ class GeneralConf : View("General") {
                             }
                         }
                     }
-                }
+                }*/
                 fieldset("Browser") {
                     field("Type") {
                         combobox<String> {

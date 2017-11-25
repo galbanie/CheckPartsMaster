@@ -25,4 +25,9 @@ object Sources : Table("Sources") {
     val linkPaginationSelector = varchar("linkPaginationSelector", 500)
     val urlPagination = varchar("urlPagination", 500)
     val numberElementPagination = integer("numberElementPagination")
+    val activeProxy = bool("activeProxy")
+    val proxyAddress = varchar("proxyAddress", 50)
+    val proxyPort = integer("proxyPort")
+    val timeout = integer("timeout")
+    val latency = integer("latency")
 }

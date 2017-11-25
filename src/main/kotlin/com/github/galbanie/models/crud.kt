@@ -57,6 +57,11 @@ class CrudSource : CrudTable<Source> {
             it[linkPaginationSelector] = t.linkPaginationSelector
             it[urlPagination] = t.urlPagination
             it[numberElementPagination] = t.numberElementPagination
+            it[activeProxy] = t.activeProxy
+            it[proxyAddress] = t.proxyAddress
+            it[proxyPort] = t.proxyPort
+            it[timeout] = t.timeout
+            it[latency] = t.latency
         }
     }
 
@@ -87,6 +92,11 @@ class CrudSource : CrudTable<Source> {
         it[linkPaginationSelector] = t.linkPaginationSelector
         it[urlPagination] = t.urlPagination
         it[numberElementPagination] = t.numberElementPagination
+        it[activeProxy] = t.activeProxy
+        it[proxyAddress] = t.proxyAddress
+        it[proxyPort] = t.proxyPort
+        it[timeout] = t.timeout
+        it[latency] = t.latency
     }
 
     private fun fromRow(r: ResultRow) = Source().apply {
@@ -108,6 +118,11 @@ class CrudSource : CrudTable<Source> {
         linkPaginationSelector = r[Sources.linkPaginationSelector]
         urlPagination = r[Sources.urlPagination]
         numberElementPagination = r[Sources.numberElementPagination]
+        activeProxy = r[Sources.activeProxy]
+        proxyAddress = r[Sources.proxyAddress]
+        proxyPort = r[Sources.proxyPort]
+        timeout = r[Sources.timeout]
+        latency = r[Sources.latency]
     }
 
 }

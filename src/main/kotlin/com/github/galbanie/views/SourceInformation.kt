@@ -17,7 +17,7 @@ class SourceInformation : View("Source Information") {
     lateinit var urltextfield : TextField
     override val complete = sourceModel.valid(sourceModel.name,sourceModel.url)
     override val root = form{
-        fieldset("Source Info") {
+        fieldset("Source Information") {
             labelPosition = javafx.geometry.Orientation.VERTICAL
             field("Name : ") {
                 textfield(sourceModel.name){
@@ -42,6 +42,56 @@ class SourceInformation : View("Source Information") {
             field("Delimiter : ") {
                 combobox<PartDelimiter>(sourceModel.delimiter) {
                     items.setAll(PartDelimiter.values().toMutableList())
+                }
+            }
+        }
+        fieldset("Proxy") {
+            field("Active") {
+                checkbox("", sourceModel.activeProxy) {
+
+                }
+            }
+            hbox(25) {
+                field("Address") {
+                    textfield(sourceModel.proxyAddress) {
+
+                    }
+
+                }
+                field("Port") {
+                    /*textfield(sourceModel.proxyPort) {
+                        style {
+                            maxWidth = 90.px
+                            minWidth = maxWidth
+                        }
+                    }*/
+                    spinner<Number>(min = 0, max = 65535, initialValue = 0, amountToStepBy = 1, editable = true, property = sourceModel.proxyPort){
+                        style {
+                            maxWidth = 90.px
+                            minWidth = maxWidth
+                        }
+                    }
+                }
+                field {
+                    button(graphic = FontAwesomeIconView(FontAwesomeIcon.LIST)) {
+                        action {
+                            find<Browser>(params = mapOf(Browser::url to "http://proxydb.net")).openWindow()
+                        }
+                    }
+                }
+            }
+        }
+        fieldset("Timeout") {
+            field("Millisecond") {
+                spinner<Number>(min = 0, max = 30000, initialValue = 0, amountToStepBy = 500, editable = true, property = sourceModel.timeout){
+
+                }
+            }
+        }
+        fieldset("latency") {
+            field("Millisecond") {
+                spinner<Number>(min = 0, max = 14000, initialValue = 0, amountToStepBy = 500, editable = true, property = sourceModel.latency){
+
                 }
             }
         }

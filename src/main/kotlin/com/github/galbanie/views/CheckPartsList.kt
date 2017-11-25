@@ -30,7 +30,7 @@ class CheckPartsList : View("Check Parts") {
             }
             bindSelected(checkPartsModel)
             onUserSelect(2){
-                workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to selectedItem))
+                workspace.dockInNewScope<CheckPartsAreaFragment>(params = mapOf(CheckPartsAreaFragment::checkParts to selectedItem))
                 selectionModel.clearSelection()
             }
             whenDocked {

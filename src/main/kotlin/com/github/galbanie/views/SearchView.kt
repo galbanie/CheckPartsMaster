@@ -12,8 +12,8 @@ import javafx.scene.control.TextField
 class SearchView : View() {
     override val root = textfield{
         promptText = "Search"
-        textProperty().onChange {
+        /*textProperty().onChange {
             if(it != null) fire(SearchRequest(it))
-        }
+        }*/
     }
 }

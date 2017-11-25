@@ -1,5 +1,7 @@
 package com.github.galbanie.models
 
+import com.github.galbanie.utils.ResultViewType
+import com.github.galbanie.views.ResultsList
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -8,6 +10,7 @@ import javafx.collections.FXCollections
 import tornadofx.*
 import java.util.*
 import javax.xml.bind.annotation.XmlRootElement
+import kotlin.reflect.KClass
 
 /**
  * Created by Galbanie on 2017-07-31.
@@ -29,6 +32,9 @@ class CheckParts {
 
     val resultsProperty = SimpleListProperty<Result>(FXCollections.observableArrayList())
     var results by resultsProperty
+
+    val resultViewTypeProperty = SimpleObjectProperty<ResultViewType>(ResultViewType.LIST)
+    var resultViewType by resultViewTypeProperty
 
     val lockProperty = SimpleBooleanProperty(false)
     var lock by lockProperty
@@ -57,6 +63,7 @@ class CheckPartsModel : ItemViewModel<CheckParts>() {
     val parts = bind(CheckParts::partsProperty)
     val sources = bind(CheckParts::sourcesProperty)
     val results = bind(CheckParts::resultsProperty)
+    val resultViewType = bind(CheckParts::resultViewTypeProperty)
     val lock = bind(CheckParts::lockProperty)
 }
 

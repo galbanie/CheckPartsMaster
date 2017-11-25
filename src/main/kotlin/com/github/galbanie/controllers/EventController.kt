@@ -7,6 +7,7 @@ import com.github.galbanie.utils.AddType
 import com.github.galbanie.utils.NotificationType
 import com.github.galbanie.utils.PartDelimiter
 import com.github.galbanie.views.CheckPartsArea
+import com.github.galbanie.views.CheckPartsAreaFragment
 import com.opencsv.CSVWriter
 import org.apache.commons.validator.routines.UrlValidator
 import org.controlsfx.control.Notifications
@@ -68,7 +69,7 @@ class EventController : Controller() {
             runLater {
                 val cpa = workspace.dockedComponent
                 if(cpa != null){
-                    if(cpa is CheckPartsArea){
+                    if(cpa is CheckPartsAreaFragment){
                         cpa.checkPartsModel.item.lockProperty.value = false
                         this@EventController.run(cpa.checkPartsModel.item, cpa.status)
                     }
@@ -79,7 +80,7 @@ class EventController : Controller() {
             runLater {
                 val cpa = workspace.dockedComponent
                 if(cpa != null){
-                    if(cpa is CheckPartsArea){
+                    if(cpa is CheckPartsAreaFragment){
                         cpa.checkPartsModel.item.results.clear()
                         cpa.checkPartsModel.item.parts.clear()
                         cpa.checkPartsModel.item.sources.clear()
@@ -90,17 +91,20 @@ class EventController : Controller() {
         subscribe<Stop> {
             val cpa = workspace.dockedComponent
             if(cpa != null){
-                if(cpa is CheckPartsArea){
+                if(cpa is CheckPartsAreaFragment){
                     cpa.checkPartsModel.item.lockProperty.value = true
                 }
             }
+        }
+        subscribe<SearchQueryRequest> {
+            //scope.searchQueryProperty.value +=
         }
         // Subscribe Check Parts
         subscribe<CheckPartsListRequest> {
             fire(CheckPartsListFound(scope.checks))
         }
         subscribe<CheckPartsQuery> { event ->
-            val check = scope.checks.filter { it.id.equals(event.id) }.firstOrNull()
+            val check = scope.checks.firstOrNull { it.id == event.id }
             if (check != null) {
                 fire(ResultsListFound(check.results))
             }
@@ -108,7 +112,7 @@ class EventController : Controller() {
         subscribe<CheckPartsCreated> {
             scope.checks.add(it.check)
             fire(CheckPartsListRequest)
-            workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it.check))
+            workspace.dockInNewScope<CheckPartsAreaFragment>(params = mapOf(CheckPartsAreaFragment::checkParts to it.check))
         }
         subscribe<CheckPartsRemoved>{
             scope.checks.remove(it.check)
@@ -126,7 +130,7 @@ class EventController : Controller() {
                 wrapper.checks.forEach {
                     if(!scope.checks.contains(it)) {
                         scope.checks.add(it)
-                        workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it))
+                        workspace.dockInNewScope<CheckPartsAreaFragment>(params = mapOf(CheckPartsAreaFragment::checkParts to it))
                     }
                     else{
                         fire(NotificationEvent("Check Parts Duplicate Id", "${it.name}(${it.id}) exist.", NotificationType.ERROR))
@@ -134,7 +138,7 @@ class EventController : Controller() {
                 }
                 fire(CheckPartsListRequest)
                 /*scope.checks.forEach {
-                    workspace.dockInNewScope<CheckPartsArea>(params = mapOf(CheckPartsArea::checkParts to it))
+                    workspace.dockInNewScope<CheckPartsAreaFragment>(params = mapOf(CheckPartsAreaFragment::checkParts to it))
                 }*/
             }catch (e : Exception){
                 fire(NotificationEvent("Could not load data", "Could not load data from file:\n${it.file.path}", NotificationType.ERROR))
@@ -142,7 +146,7 @@ class EventController : Controller() {
         }
         subscribe<SaveCheckDataToXMLFile> { event ->
             var cpa = workspace.dockedComponent
-            if(cpa != null && cpa is CheckPartsArea){
+            if(cpa != null && cpa is CheckPartsAreaFragment){
                 try {
                     val jaxbContext = javax.xml.bind.JAXBContext.newInstance(CheckPartsListWrapper::class.java)
                     val marshaller = jaxbContext.createMarshaller()
@@ -247,7 +251,7 @@ class EventController : Controller() {
         }
         subscribe<SaveResultDataToCSVFile> { event ->
             var cpa = workspace.dockedComponent
-            if(cpa != null && cpa is CheckPartsArea){
+            if(cpa != null && cpa is CheckPartsAreaFragment){
                 val writer = com.opencsv.CSVWriter(java.io.FileWriter(event.file), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER)
                 var entries = arrayListOf<Array<String>>()//arrayOf("Part,Titre,Url,Source,Descriptions")
                 entries.add(arrayOf("Part","Title","Url","Source","Descriptions"))
@@ -262,7 +266,7 @@ class EventController : Controller() {
         }
         subscribe<SaveResultDataToXMLFile> { event ->
             var cpa = workspace.dockedComponent
-            if(cpa != null && cpa is CheckPartsArea){
+            if(cpa != null && cpa is CheckPartsAreaFragment){
                 try {
                     val jaxbContext = javax.xml.bind.JAXBContext.newInstance(ResultListWrapper::class.java)
                     val marshaller = jaxbContext.createMarshaller()
@@ -290,6 +294,7 @@ class EventController : Controller() {
             fire(NotificationEvent("Run", "${check.name} - Running process in progress", NotificationType.INFORMATION))
             updateTitle("Running process in progress")
             println("${check.name} - Running process in progress")
+            val nbParts = check.parts.count()
             check.parts.filter { it.check.not() }.forEach { part ->
                 if (check.lockProperty.value){
                     fire(NotificationEvent("Stop", "Process Stopping", NotificationType.INFORMATION))
@@ -297,7 +302,7 @@ class EventController : Controller() {
                     return@runAsync
                 }
                 check.sources.forEach { source ->
-                    updateMessage("Current part : ${part.part} - ${source.name}")
+                    updateMessage("${part.part} - ${source.name}")
                     println("${check.name} - Current part : ${part.part} - ${source.name}")
                     var hasNext = false
                     var url = source.url.replace("%part%",delimiter(part.part,source.delimiter),true)
@@ -308,10 +313,10 @@ class EventController : Controller() {
                     do {
                         try {
                             var connection = Jsoup.connect(urlFinal)
-                            if (config.boolean("proxy.active")) connection.proxy(config.string("proxy.address","127.0.0.1"), config.string("proxy.port", "8080")!!.toInt())
+                            if (source.activeProxy) connection.proxy(source.proxyAddress, source.proxyPort)
                             connection.ignoreHttpErrors(true)
                             connection.followRedirects(true)
-                            connection.timeout(config.string("timeout.millis", "7000").toInt())
+                            connection.timeout(source.timeout)
                             connection.ignoreContentType(true)
                             connection.method(source.method)
                             connection.data(data)
@@ -364,7 +369,6 @@ class EventController : Controller() {
                                             }
                                         }
                                         else hasNext = false
-                                        if (config.boolean("latency.active")) Thread.sleep(config.string("latency.millis", "7000").toLong())
                                     }
                                 }
                                 in 201..206 -> {
@@ -401,6 +405,8 @@ class EventController : Controller() {
                         }
                     }while (source.pagination and hasNext)
                     part.checkProperty.value = true
+                    if (source.latency > 0) Thread.sleep(source.latency.toLong())
+                    updateProgress(check.parts.filter { it.check }.count().toDouble(), nbParts.toDouble())
                 }
             }
             fire(NotificationEvent("Run", "${check.name} - Process finish", NotificationType.INFORMATION))

@@ -16,7 +16,7 @@ import kotlin.system.exitProcess
 /**
  * Created by Galbanie on 2017-07-31.
  */
-class MainMenu : View() {
+class TopMenuView : View() {
     val status: TaskStatus by inject()
     override val root = MenuBar()
     init {
@@ -96,6 +96,13 @@ class MainMenu : View() {
 
                 }
                 item("Paste", KeyCombination.keyCombination("Shortcut+P"), FontAwesomeIconView(FontAwesomeIcon.CLIPBOARD)).action {
+
+                }
+                separator()
+                item("Clear Selection", KeyCombination.keyCombination("Shortcut+D"), FontAwesomeIconView(FontAwesomeIcon.GEAR)).action {
+
+                }
+                item("Reset", KeyCombination.keyCombination("Shortcut+R"), FontAwesomeIconView(FontAwesomeIcon.ASTERISK)).action {
 
                 }
             }
